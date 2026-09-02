@@ -1,31 +1,28 @@
-/** @type {import('tailwindcss').Config} */
+﻿/** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    './index.html',
-    './src/**/*.{js,jsx,ts,tsx}',
-  ],
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#8B1A1A',
-          dark:    '#6B1414',
-          light:   '#A52A2A',
+          DEFAULT: '#8B1E17',
+          dark:    '#6D1611',
+          light:   '#A8261E',
         },
         accent: {
-          DEFAULT: '#D4A843',
-          dark:    '#B8892A',
-          light:   '#E8C060',
+          DEFAULT: '#D97706',
+          dark:    '#B45309',
+          light:   '#F59E0B',
         },
         cream: {
-          DEFAULT: '#FDF8F0',
-          dark:    '#F5EDE0',
+          DEFAULT: '#FBF9F5',
+          dark:    '#F3EFE8',
         },
-        'text-dark':  '#2D1810',
-        'text-muted': '#7A6B63',
-        border:       '#E8DDD3',
-        /* Brand dark — used as bg for Premium badge */
-        'brand-dark': '#2D1810',
+        'text-dark':  '#23120B',
+        'text-muted': '#7C6B5E',
+        border:       '#EFE8DF',
+        'brand-dark': '#23120B',
+        'olive':      '#3E5244',
       },
       fontFamily: {
         serif: ['Playfair Display', 'Georgia', 'serif'],
@@ -36,33 +33,20 @@ export default {
         22: '5.5rem',
       },
       boxShadow: {
-        card:         '0 2px 8px rgba(45,24,16,0.08)',
-        'card-hover': '0 8px 24px rgba(45,24,16,0.14)',
-        drawer:       '-4px 0 24px rgba(45,24,16,0.12)',
-        logo:         '0 4px 20px rgba(139,26,26,0.35)',
+        card:         '0 1px 4px rgba(35,18,11,0.06), 0 2px 8px rgba(35,18,11,0.06)',
+        'card-hover': '0 4px 16px rgba(35,18,11,0.12), 0 8px 24px rgba(35,18,11,0.08)',
+        drawer:       '-4px 0 24px rgba(35,18,11,0.12)',
       },
       borderRadius: {
-        card: '12px',
+        card: '14px',
       },
       animation: {
-        /* Logo — gentle continuous rotation */
-        'logo-spin':   'logoSpin 12s linear infinite',
-        /* Logo — slow swirl on hover (faster) */
-        'logo-swirl':  'logoSpin 2s linear infinite',
-        /* Entrance animations */
         'slide-in-right': 'slideInRight 0.3s cubic-bezier(0.4,0,0.2,1)',
         'fade-in':        'fadeIn 0.25s ease-out',
-        'fade-up':        'fadeUp 0.4s ease-out',
-        /* Spinner */
-        'spin-brand':  'spin 1s linear infinite',
-        /* Pulse glow on badge */
-        'pulse-gold':  'pulseGold 2s ease-in-out infinite',
+        'fade-up':        'fadeUp 0.45s ease-out both',
+        'fade-up-delay':  'fadeUp 0.45s ease-out 0.15s both',
       },
       keyframes: {
-        logoSpin: {
-          '0%':   { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg)' },
-        },
         slideInRight: {
           from: { transform: 'translateX(100%)' },
           to:   { transform: 'translateX(0)' },
@@ -72,12 +56,8 @@ export default {
           to:   { opacity: '1', transform: 'translateY(0)' },
         },
         fadeUp: {
-          from: { opacity: '0', transform: 'translateY(20px)' },
+          from: { opacity: '0', transform: 'translateY(22px)' },
           to:   { opacity: '1', transform: 'translateY(0)' },
-        },
-        pulseGold: {
-          '0%,100%': { boxShadow: '0 0 0 0 rgba(212,168,67,0.5)' },
-          '50%':     { boxShadow: '0 0 0 8px rgba(212,168,67,0)' },
         },
       },
     },

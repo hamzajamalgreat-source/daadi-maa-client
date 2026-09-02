@@ -1,116 +1,80 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Google Fonts already loaded via index.html ──────────────────────────── */
-
-/* ─── CSS Custom Properties ────────────────────────────────────────────────── */
+/* ─── Design tokens ────────────────────────────────────────────────────────── */
 :root {
-  --color-primary:      #8B1A1A;
-  --color-primary-dark: #6B1414;
-  --color-accent:       #D4A843;
-  --color-bg:           #FDF8F0;
-  --color-text:         #2D1810;
-  --color-muted:        #7A6B63;
-  --color-border:       #E8DDD3;
+  --color-primary:      #8B1E17;
+  --color-primary-dark: #6D1611;
+  --color-accent:       #D97706;
+  --color-bg:           #FBF9F5;
+  --color-brown:        #23120B;
+  --color-text:         #23120B;
+  --color-muted:        #7C6B5E;
+  --color-border:       #EFE8DF;
+  --color-olive:        #3E5244;
   --navbar-height:      64px;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
 @layer base {
-  html {
-    scroll-behavior: smooth;
-    -webkit-text-size-adjust: 100%;
-  }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
   body {
     @apply bg-cream text-text-dark font-sans antialiased;
     min-height: 100vh;
   }
 
-  h1, h2, h3 {
-    @apply font-serif;
-  }
+  h1, h2, h3 { @apply font-serif; }
 
-  /* Accessible focus ring — brand coloured */
   *:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 3px;
     border-radius: 4px;
   }
-  *:focus:not(:focus-visible) {
-    outline: none;
-  }
+  *:focus:not(:focus-visible) { outline: none; }
 
-  img { @apply max-w-full; }
-
-  /* Smooth image rendering */
-  img, svg { display: block; }
+  img, svg { display: block; max-width: 100%; }
 }
 
-/* ─── Spice-pattern background (used in hero, footer) ──────────────────────── */
-.spice-pattern-bg {
-  background-color: #2D1810;
+/* ─── Dark hero/footer background ──────────────────────────────────────────── */
+.bg-brand-dark {
+  background-color: #23120B;
+}
+
+.hero-bg {
+  background-color: #23120B;
   background-image:
-    radial-gradient(circle at 15% 25%, rgba(212,168,67,0.12) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(139,26,26,0.25) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(212,168,67,0.06) 0%, transparent 60%);
+    radial-gradient(circle at 15% 40%, rgba(217,119,6,0.10) 0%, transparent 50%),
+    radial-gradient(circle at 85% 20%, rgba(139,30,23,0.18) 0%, transparent 50%);
 }
 
-/* Spoon stripe decorative band (top + bottom of hero like catalogue) */
-.spoon-stripe {
-  background:
-    linear-gradient(135deg, #1A0A05 0%, #3D1810 50%, #1A0A05 100%);
-  position: relative;
-  overflow: hidden;
-}
-.spoon-stripe::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(212,168,67,0.08) 0px,
-    rgba(212,168,67,0.08) 2px,
-    transparent 2px,
-    transparent 40px
-  );
-}
-
-/* ─── Logo display — no cursor interaction ──────────────────────────────────── */
+/* ─── Logo ──────────────────────────────────────────────────────────────────── */
 .logo-img {
   pointer-events: none;
   user-select: none;
-  /* mix-blend-mode removes white background on white/light surfaces */
-  mix-blend-mode: multiply;
 }
 
-/* Product images — remove white background */
-.product-img-blend {
-  mix-blend-mode: multiply;
-}
-
-
-/* ─── Component Layer ──────────────────────────────────────────────────────── */
+/* ─── Components ───────────────────────────────────────────────────────────── */
 @layer components {
 
-  /* ── Buttons ──────────────────────────────────────────────────────────── */
+  /* Buttons */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
            bg-primary text-white font-semibold
-           px-5 py-2.5 rounded-lg
+           px-5 py-2.5 rounded-xl
            transition-all duration-200
-           hover:bg-primary-dark active:scale-95
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
+           hover:bg-primary-dark active:scale-[0.97]
+           disabled:opacity-50 disabled:cursor-not-allowed
            focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2
            border-2 border-primary text-primary font-semibold
-           px-5 py-2.5 rounded-lg
+           px-5 py-2.5 rounded-xl
            transition-all duration-200
-           hover:bg-primary hover:text-white active:scale-95
+           hover:bg-primary hover:text-white active:scale-[0.97]
            disabled:opacity-50 disabled:cursor-not-allowed
            focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
@@ -118,28 +82,28 @@
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2
            text-text-muted font-medium
-           px-4 py-2 rounded-lg
+           px-4 py-2 rounded-xl
            transition-all duration-200
-           hover:bg-cream-dark hover:text-text-dark active:scale-95;
+           hover:bg-cream-dark hover:text-text-dark active:scale-[0.97];
   }
 
   .btn-accent {
     @apply inline-flex items-center justify-center gap-2
-           bg-accent text-text-dark font-semibold
-           px-5 py-2.5 rounded-lg
+           bg-accent text-white font-semibold
+           px-5 py-2.5 rounded-xl
            transition-all duration-200
-           hover:bg-accent-dark active:scale-95
+           hover:bg-accent-dark active:scale-[0.97]
            focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2;
   }
 
-  /* ── Cards ─────────────────────────────────────────────────────────────── */
+  /* Cards — white surface, warm border, subtle shadow */
   .card {
     @apply bg-white rounded-card shadow-card border border-border;
   }
 
-  /* ── Forms ─────────────────────────────────────────────────────────────── */
+  /* Forms */
   .form-input {
-    @apply w-full px-4 py-2.5 rounded-lg
+    @apply w-full px-4 py-2.5 rounded-xl
            border border-border bg-white text-text-dark
            placeholder:text-text-muted text-sm
            transition-colors duration-150
@@ -147,14 +111,14 @@
   }
 
   .form-label {
-    @apply block text-sm font-medium text-text-dark mb-1;
+    @apply block text-sm font-medium text-text-dark mb-1.5;
   }
 
   .form-error {
     @apply text-sm text-red-600 mt-1 flex items-center gap-1;
   }
 
-  /* ── Layout ────────────────────────────────────────────────────────────── */
+  /* Layout */
   .container-page {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
@@ -163,32 +127,14 @@
     @apply text-2xl sm:text-3xl font-serif font-semibold text-text-dark;
   }
 
-  /* ── Badges ────────────────────────────────────────────────────────────── */
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
-  }
+  /* Badges */
+  .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
   .badge-gold  { @apply badge bg-accent text-white; }
   .badge-red   { @apply badge bg-primary text-white; }
-  .badge-green { @apply badge bg-green-100 text-green-800; }
-
-  /* ── Product card shelf line (catalogue style) ─────────────────────────── */
-  .shelf-card {
-    @apply card overflow-hidden;
-    position: relative;
-  }
-  .shelf-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #C8A882 0%, #E8D0A0 50%, #C8A882 100%);
-    border-radius: 0 0 12px 12px;
-  }
+  .badge-olive { @apply badge bg-olive text-white; }
 }
 
-/* ─── Utility Layer ────────────────────────────────────────────────────────── */
+/* ─── Utilities ────────────────────────────────────────────────────────────── */
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
@@ -196,26 +142,23 @@
   }
   .scrollbar-thin::-webkit-scrollbar       { width: 6px; height: 6px; }
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: var(--color-border);
-    border-radius: 3px;
-  }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background-color: var(--color-border); border-radius: 3px; }
 
-  /* Text shadow for hero headings */
-  .text-shadow-dark {
-    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  }
-
-  /* Gold text gradient */
+  /* Heritage headline gradient */
   .text-gold-gradient {
-    background: linear-gradient(135deg, #D4A843 0%, #FFD700 50%, #D4A843 100%);
+    background: linear-gradient(135deg, #D97706 0%, #F59E0B 50%, #D97706 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Catalogue-style spice pattern overlay */
-  .spice-overlay {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23D4A843' opacity='0.08'/%3E%3Cpath d='M10 10 Q20 5 30 10 Q40 15 50 10' stroke='%23D4A843' stroke-width='0.5' fill='none' opacity='0.06'/%3E%3C/svg%3E");
+  .text-shadow-dark {
+    text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+  }
+
+  /* Thin divider line in brand gold */
+  .divider-gold {
+    height: 3px;
+    background: linear-gradient(90deg, #8B1E17 0%, #D97706 40%, #8B1E17 80%, #D97706 100%);
   }
 }
