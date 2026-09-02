@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ShoppingBag, Clock, Package, CheckCircle, TrendingUp,
@@ -11,7 +11,7 @@ import OrderStatusBadge from '../components/OrderStatusBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import useAuthStore from '../store/authStore';
 
-// ─── Admin Layout Shell ────────────────────────────────────────────────────────
+// â”€â”€â”€ Admin Layout Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function AdminShell({ children, title }) {
   const { username, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -22,9 +22,9 @@ export function AdminShell({ children, title }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: "#FBF9F5" }}>
       {/* Top bar */}
-      <header className="bg-[#2D1810] text-white px-4 sm:px-6 py-0 flex items-center justify-between h-14 flex-shrink-0 shadow-lg z-20">
+      <header className="bg-brand-dark text-white px-4 sm:px-6 py-0 flex items-center justify-between h-14 flex-shrink-0 shadow-lg z-20">
         <div className="flex items-center gap-3">
           <img
             src="/daadi-maa-logo.png"
@@ -60,7 +60,7 @@ export function AdminShell({ children, title }) {
 
         <div className="flex items-center gap-3">
           <Link to="/" className="text-xs text-white/50 hover:text-white transition-colors hidden sm:block">
-            ← Storefront
+            â† Storefront
           </Link>
           <span className="text-xs text-white/40 hidden sm:block">|</span>
           <span className="text-xs text-white/70 hidden sm:block">{username}</span>
@@ -76,7 +76,7 @@ export function AdminShell({ children, title }) {
       </header>
 
       {/* Mobile nav */}
-      <div className="md:hidden bg-[#3D2010] px-4 py-2 flex gap-2">
+      <div className="md:hidden bg-brand-dark/90 px-4 py-2 flex gap-2">
         {[
           { to: '/admin',          label: 'Dashboard' },
           { to: '/admin/orders',   label: 'Orders' },
@@ -106,7 +106,7 @@ export function AdminShell({ children, title }) {
   );
 }
 
-// ─── Stat Card ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Stat Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StatCard({ icon: Icon, label, value, sub, colour, border }) {
   return (
     <div className={`bg-white rounded-xl p-5 shadow-sm border-l-4 ${border} flex items-start gap-4`}>
@@ -122,7 +122,7 @@ function StatCard({ icon: Icon, label, value, sub, colour, border }) {
   );
 }
 
-// ─── Mini bar chart ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Mini bar chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MiniBarChart({ data }) {
   if (!data?.length) return <p className="text-sm text-gray-400 text-center py-8">No data yet</p>;
   const max = Math.max(...data.map(d => d.revenue), 1);
@@ -152,7 +152,7 @@ function MiniBarChart({ data }) {
   );
 }
 
-// ─── Dashboard page ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Dashboard page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function AdminDashboard() {
   const [stats, setStats]     = useState(null);
   const [loading, setLoading] = useState(true);
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
       </div>
 
       {loading && !stats ? (
-        <LoadingSpinner label="Loading dashboard…" />
+        <LoadingSpinner label="Loading dashboardâ€¦" />
       ) : error ? (
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <AlertCircle size={32} className="text-red-400 mx-auto mb-2" />
@@ -211,7 +211,7 @@ export default function AdminDashboard() {
       ) : stats ? (
         <div className="space-y-6">
 
-          {/* ── Stat cards ── */}
+          {/* â”€â”€ Stat cards â”€â”€ */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard icon={ShoppingBag}  label="Total Orders"    value={stats.totalOrders}     colour="bg-primary"     border="border-primary"    sub={`${stats.todayOrders} today`} />
             <StatCard icon={Clock}        label="Pending"         value={stats.pendingOrders}   colour="bg-amber-500"   border="border-amber-400"  sub="Need action" />
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
             <StatCard icon={CheckCircle}  label="Delivered"       value={stats.deliveredOrders} colour="bg-green-600"   border="border-green-500" />
           </div>
 
-          {/* ── Revenue row ── */}
+          {/* â”€â”€ Revenue row â”€â”€ */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-4">
@@ -246,7 +246,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* ── Top products + quick links ── */}
+          {/* â”€â”€ Top products + quick links â”€â”€ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Top selling */}
             <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* ── Quick navigation ── */}
+          {/* â”€â”€ Quick navigation â”€â”€ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link to="/admin/orders"
               className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-center
@@ -318,7 +318,7 @@ export default function AdminDashboard() {
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5">
                   {stats.pendingOrders > 0
-                    ? `⚠️ ${stats.pendingOrders} pending order${stats.pendingOrders > 1 ? 's' : ''} need attention`
+                    ? `âš ï¸ ${stats.pendingOrders} pending order${stats.pendingOrders > 1 ? 's' : ''} need attention`
                     : 'View all orders, update status'}
                 </p>
               </div>
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          {/* ── Recent orders table ── */}
+          {/* â”€â”€ Recent orders table â”€â”€ */}
           {stats.recentOrders?.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -392,3 +392,4 @@ export default function AdminDashboard() {
     </AdminShell>
   );
 }
+
