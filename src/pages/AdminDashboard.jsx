@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   ShoppingBag, Clock, Package, CheckCircle, TrendingUp,
   ArrowRight, LogOut, RefreshCw, Users, DollarSign,
@@ -14,6 +14,7 @@ import useAuthStore from '../store/authStore';
 // â”€â”€â”€ Admin Layout Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function AdminShell({ children, title }) {
   const { username, logout } = useAuthStore();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -49,7 +50,7 @@ export function AdminShell({ children, title }) {
               key={to}
               to={to}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
-                ${window.location.pathname === to
+                ${location.pathname === to
                   ? 'bg-white/15 text-white'
                   : 'text-white/60 hover:text-white hover:bg-white/10'}`}
             >
@@ -86,7 +87,7 @@ export function AdminShell({ children, title }) {
             key={to}
             to={to}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors
-              ${window.location.pathname === to
+              ${location.pathname === to
                 ? 'bg-white/20 text-white'
                 : 'text-white/60 hover:text-white'}`}
           >
@@ -392,4 +393,5 @@ export default function AdminDashboard() {
     </AdminShell>
   );
 }
+
 
