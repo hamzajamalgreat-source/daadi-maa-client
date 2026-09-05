@@ -1,42 +1,78 @@
-import { useLocation } from 'react-router-dom';
-import useCartStore from '../store/cartStore';
-import { formatCurrency } from '../utils/formatCurrency';
+﻿import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
+import useCartStore from "../store/cartStore";
+import { formatCurrency } from "../utils/formatCurrency";
 
 export default function WhatsAppButton() {
   const location = useLocation();
   const { items } = useCartStore();
+  const [visible, setVisible] = useState(false);
 
-  // Hide on admin pages
-  if (location.pathname.startsWith('/admin')) return null;
+  // Delay appearance for 1.2s after page load
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 1200);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (location.pathname.startsWith("/admin")) return null;
 
   let href;
   if (items.length > 0) {
     const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
-    const lines = items.map(i => `- ${i.name} x${i.quantity} (${formatCurrency(i.price * i.quantity)})`);
-    const msg = [
-      "Hi, I'd like to order from Daadi Maa Spices:",
-      ...lines,
-      `Total: ${formatCurrency(total)}`,
-    ].join('\n');
+    const lines2 = items.map(i => `- ${i.name} x${i.quantity} (${formatCurrency(i.price * i.quantity)})`);
+    const msg = ["Hi, I would like to order from Daadi Maa Spices:", ...lines2, `Total: ${formatCurrency(total)}`].join("\n");
     href = `https://wa.me/923149007440?text=${encodeURIComponent(msg)}`;
   } else {
-    href = `https://wa.me/923149007440?text=${encodeURIComponent("Hi, I'd like to order from Daadi Maa Spices")}`;
+    href = `https://wa.me/923149007440?text=${encodeURIComponent("Hi, I would like to order from Daadi Maa Spices")}`;
   }
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Chat on WhatsApp"
-      className="fixed z-50 bottom-20 right-4 md:bottom-6 md:right-6 flex items-center justify-center
-                 w-14 h-14 rounded-full shadow-xl transition-transform hover:scale-110 active:scale-95"
-      style={{ background: '#25D366' }}
-    >
-      {/* WhatsApp SVG icon */}
-      <svg viewBox="0 0 32 32" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.668 4.61 1.822 6.5L4 29l7.703-1.797A11.94 11.94 0 0016 28c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.522 0 10 4.478 10 10s-4.478 10-10 10c-1.848 0-3.576-.505-5.059-1.385l-.363-.217-4.578 1.068 1.094-4.459-.234-.371A9.944 9.944 0 016 15c0-5.522 4.478-10 10-10zm-3.127 5.875c-.195 0-.512.073-.779.366-.268.293-1.025 1.002-1.025 2.443s1.049 2.832 1.195 3.027c.146.195 2.035 3.23 5.012 4.404.701.303 1.248.484 1.674.619.703.226 1.343.194 1.85.118.565-.085 1.74-.711 1.985-1.398.244-.686.244-1.275.17-1.396-.073-.122-.267-.195-.561-.342-.293-.146-1.736-.857-2.004-.955-.268-.098-.463-.146-.658.146-.195.293-.754.955-.924 1.15-.17.195-.34.22-.633.073-.293-.146-1.24-.457-2.361-1.457-.873-.779-1.46-1.74-1.631-2.033-.17-.293-.018-.451.128-.596.131-.131.293-.342.439-.512.146-.17.195-.293.293-.488.098-.195.049-.367-.024-.512-.073-.146-.658-1.584-.902-2.17-.237-.57-.479-.493-.658-.502l-.56-.01z"/>
-      </svg>
-    </a>
+    <AnimatePresence>
+      {visible && (
+        <motion.a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat on WhatsApp"
+          className="fixed z-50 bottom-20 right-4 md:bottom-8 md:right-6"
+          initial={{ scale: 0, opacity: 0, rotate: -180 }}
+          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 18 }}
+          whileHover={{ scale: 1.15, rotate: [0, -10, 10, 0], transition: { duration: 0.4 } }}
+          whileTap={{ scale: 0.88 }}
+        >
+          {/* Pulsing ring behind button */}
+          <span
+            className="absolute inset-0 rounded-full pointer-events-none"
+            style={{
+              background: "#25D366",
+              animation: "waPulse 2.2s ease-out infinite",
+            }}
+          />
+          {/* Floating label that appears on hover */}
+          <motion.span
+            className="absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap text-xs font-bold
+                       text-white px-3 py-1.5 rounded-full shadow-lg pointer-events-none"
+            style={{ background: "#25D366" }}
+            initial={{ opacity: 0, x: 10 }}
+            whileHover={{ opacity: 1, x: 0 }}
+          >
+            {items.length > 0 ? `Order (${items.length})` : "Chat with us"}
+          </motion.span>
+          {/* Green circle button */}
+          <span
+            className="relative z-10 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl"
+            style={{ background: "#25D366" }}
+          >
+            {/* Official WhatsApp icon */}
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+          </span>
+        </motion.a>
+      )}
+    </AnimatePresence>
   );
 }

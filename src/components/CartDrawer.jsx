@@ -1,3 +1,4 @@
+﻿import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
@@ -7,7 +8,7 @@ import { productsApi } from '../api/client';
 import EmptyState from './EmptyState';
 
 /**
- * CartDrawer — slide-in panel from right.
+ * CartDrawer ΓÇö slide-in panel from right.
  * Traps focus when open and closes on Escape or backdrop click.
  */
 export default function CartDrawer() {
@@ -75,21 +76,23 @@ export default function CartDrawer() {
 
   const totalItemCount = items.reduce((s, i) => s + i.quantity, 0);
   const cartTotal = Math.round(items.reduce((s, i) => s + i.price * i.quantity, 0) * 100) / 100;
-
-  if (!isDrawerOpen) return null;
-
   return (
-    <>
+    <AnimatePresence>
+      {isDrawerOpen && (
+      <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm animate-fade-in"
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
         onClick={closeDrawer}
         aria-hidden="true"
       />
 
       {/* Drawer panel */}
-      <aside
-        className="fixed right-0 top-0 z-50 h-full w-full max-w-sm bg-white shadow-drawer flex flex-col animate-slide-in-right"
+      <motion.aside
+        initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+        transition={{ type: "spring", stiffness: 280, damping: 28 }}
+        className="fixed right-0 top-0 z-50 h-full w-full max-w-sm bg-white shadow-drawer flex flex-col"
         role="dialog"
         aria-modal="true"
         aria-label="Shopping cart"
@@ -121,7 +124,7 @@ export default function CartDrawer() {
           {items.length === 0 ? (
             <div>
               <EmptyState
-                icon="🛒"
+                icon="≡ƒ¢Æ"
                 title="Your cart is empty"
                 message="Browse our spices and add items to your cart."
                 actionLabel="Shop Now"
@@ -194,7 +197,7 @@ export default function CartDrawer() {
                       {item.name}
                     </Link>
                     {staleItems.includes(item.id) && (
-                      <p className="text-[10px] text-amber-600 font-medium mt-0.5">⏰ Still want this?</p>
+                      <p className="text-[10px] text-amber-600 font-medium mt-0.5">ΓÅ░ Still want this?</p>
                     )}
                     <p className="text-xs text-text-muted mt-0.5">
                       {formatCurrency(item.price)} each
@@ -243,7 +246,7 @@ export default function CartDrawer() {
           )}
         </div>
 
-        {/* Footer — totals + actions */}
+        {/* Footer ΓÇö totals + actions */}
         {items.length > 0 && (
           <div className="border-t border-border px-5 py-4 space-y-3 bg-white">
             {/* Minimum order progress */}
@@ -254,7 +257,7 @@ export default function CartDrawer() {
               return (
                 <div className="mb-3">
                   <div className="flex justify-between text-xs mb-1" style={{ color: '#7C6B5E' }}>
-                    <span>{remaining > 0 ? `Add Rs.${remaining} more for free delivery` : '🎉 You qualify for free delivery!'}</span>
+                    <span>{remaining > 0 ? `Add Rs.${remaining} more for free delivery` : '≡ƒÄë You qualify for free delivery!'}</span>
                     <span className="font-bold" style={{ color: '#8B1E17' }}>{pct}%</span>
                   </div>
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#EFE8DF' }}>
@@ -275,7 +278,7 @@ export default function CartDrawer() {
               <span className="text-primary text-lg">{formatCurrency(cartTotal)}</span>
             </div>
             <p className="text-xs text-text-muted text-center">
-              Cash on Delivery · Free delivery info at checkout
+              Cash on Delivery ┬╖ Free delivery info at checkout
             </p>
             <button
               onClick={handleCheckout}
@@ -291,7 +294,10 @@ export default function CartDrawer() {
             </button>
           </div>
         )}
-      </aside>
+      </motion.aside>
     </>
+      )}
+    </AnimatePresence>
   );
 }
+

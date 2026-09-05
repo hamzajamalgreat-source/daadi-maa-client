@@ -2,6 +2,7 @@
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, Menu, X, Search } from "lucide-react";
 import useCartStore from "../store/cartStore";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function Navbar() {
   const { items, openDrawer } = useCartStore();
@@ -50,7 +51,10 @@ export default function Navbar() {
   ];
 
   return (
-    <header
+    <motion.header
+      initial={{ y: -70, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className={`sticky top-0 z-30 bg-white transition-all duration-300 ${
         scrolled ? "shadow-md border-b border-border/40" : "border-b border-border"
       }`}
@@ -126,11 +130,14 @@ export default function Navbar() {
               className="relative p-2.5 rounded-lg text-text-muted hover:text-primary hover:bg-cream-dark transition-colors">
               <ShoppingCart size={22} />
               {totalItems > 0 && (
-                <span key={totalItems} className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary text-white
-                                 text-[10px] font-bold rounded-full flex items-center justify-center px-0.5
-                                 animate-bounce-once">
+                <motion.span
+                  key={totalItems}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                  className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5">
                   {totalItems > 99 ? "99+" : totalItems}
-                </span>
+                </motion.span>
               )}
             </button>
             <button onClick={() => setMobileOpen(v => !v)}
@@ -143,8 +150,11 @@ export default function Navbar() {
         </div>
       </div>
 
-      {mobileOpen && (
-        <nav id="mobile-nav"
+      <AnimatePresence>
+        {mobileOpen && (
+        <motion.nav id="mobile-nav"
+          initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.22, ease: "easeInOut" }}
           className="md:hidden border-t border-border bg-white px-4 py-3 space-y-1 animate-fade-in"
           aria-label="Mobile navigation">
           {navLinks.map(({ to, label, exact }) => (
@@ -155,8 +165,10 @@ export default function Navbar() {
                 }`
               }>{label}</NavLink>
           ))}
-        </nav>
-      )}
-    </header>
+        </motion.nav>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }
+

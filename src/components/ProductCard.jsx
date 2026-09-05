@@ -1,6 +1,7 @@
 ﻿import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Eye, Star } from "lucide-react";
+import { motion } from "motion/react";
 import toast from "react-hot-toast";
 import useCartStore from "../store/cartStore";
 import { formatCurrency } from "../utils/formatCurrency";
@@ -37,10 +38,17 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <article className="group relative bg-white rounded-card shadow-card border border-border
-                        flex flex-col overflow-hidden
-                        transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1.5"
-             style={{ borderColor: "#EFE8DF" }}>
+    <motion.article
+      className="group relative bg-white rounded-card shadow-card border border-border
+                 flex flex-col overflow-hidden transition-shadow duration-300
+                 hover:shadow-card-hover"
+      style={{ borderColor: "#EFE8DF" }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+    >
 
       {/* ── Image area ─────────────────────────────────────────────────── */}
       <Link
@@ -100,23 +108,24 @@ export default function ProductCard({ product }) {
             View Product
           </span>
           {product.in_stock && (
-            <button
+            <motion.button
               onClick={handleAddToCart}
               disabled={adding}
               className="flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg
-                         transition-all duration-200 active:scale-95
+                         transition-colors duration-200
                          translate-y-4 group-hover:translate-y-0"
               style={{ background: adding ? "#3E5244" : "#8B1E17", transitionDelay: "50ms" }}
               aria-label={`Add ${product.name} to cart`}
+              whileTap={{ scale: 0.92 }}
             >
               <ShoppingCart size={13} />
               {adding ? "✓ Added!" : "Add to Cart"}
-            </button>
+            </motion.button>
           )}
         </div>
       </Link>
 
-      {/* ── Info section — changes on group hover ──────────────────────── */}
+      {/* ── Info section ──────────────────────────────────────────────── */}
       <div className="flex flex-col flex-1 px-4 pb-4 pt-3 transition-colors duration-300"
            style={{ background: "inherit" }}>
 
@@ -128,7 +137,7 @@ export default function ProductCard({ product }) {
           </span>
         )}
 
-        {/* Name — goes bold + heritage red on hover */}
+        {/* Name */}
         <Link
           to={`/shop/${product.slug}`}
           className="font-serif font-semibold text-sm leading-snug mb-2 transition-all duration-300
@@ -138,7 +147,7 @@ export default function ProductCard({ product }) {
           {product.name}
         </Link>
 
-        {/* Stars — accent on hover */}
+        {/* Stars */}
         <div className="flex items-center gap-0.5 mb-3">
           {Array(5).fill(0).map((_, i) => (
             <Star key={i} size={11}
@@ -148,7 +157,7 @@ export default function ProductCard({ product }) {
                 style={{ color: "#7C6B5E" }}>5.0</span>
         </div>
 
-        {/* Price row — bigger on hover */}
+        {/* Price row */}
         <div className="mt-auto flex items-center justify-between">
           <span className="font-bold transition-all duration-300 group-hover:text-lg text-base"
                 style={{ color: "#8B1E17" }}>
@@ -164,6 +173,6 @@ export default function ProductCard({ product }) {
       {/* Bottom border highlight on hover */}
       <div className="h-0.5 w-0 group-hover:w-full transition-all duration-500"
            style={{ background: "#8B1E17" }} />
-    </article>
+    </motion.article>
   );
 }

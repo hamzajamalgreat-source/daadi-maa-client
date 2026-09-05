@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, X, RefreshCw } from 'lucide-react';
 import { productsApi } from '../api/client';
@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard';
 import CategoryFilter from '../components/CategoryFilter';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
+import { motion } from "motion/react";
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,7 +45,7 @@ export default function Shop() {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  // Debounce search → URL
+  // Debounce search â†’ URL
   useEffect(() => {
     const t = setTimeout(() => {
       const next = new URLSearchParams(searchParams);
@@ -103,22 +104,22 @@ export default function Shop() {
         <div className="flex items-center justify-center py-3 text-sm text-text-muted gap-2 transition-all"
           style={{ height: pullY > 20 ? `${Math.min(pullY, 56)}px` : '0px', overflow: 'hidden' }}>
           <RefreshCw size={16} className={pulling ? 'animate-spin' : ''} />
-          {pulling ? 'Refreshing…' : 'Release to refresh'}
+          {pulling ? 'Refreshingâ€¦' : 'Release to refresh'}
         </div>
       )}
 
-      {/* ── Page header — cream, consistent with body ──────────────────── */}
-      <div className="border-b border-border">
+      {/* â”€â”€ Page header â€” cream, consistent with body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="border-b border-border">
         <div className="container-page py-8">
           <h1 className="section-title mb-1">Our Spices</h1>
           <p className="text-text-muted text-sm">
-            {loading ? 'Loading…' : `${products.length} product${products.length !== 1 ? 's' : ''} · ${activeLabel}`}
+            {loading ? 'Loadingâ€¦' : `${products.length} product${products.length !== 1 ? 's' : ''} Â· ${activeLabel}`}
           </p>
         </div>
-      </div>
+      </motion.div>
 
       <div className="container-page py-8">
-        {/* ── Filters ──────────────────────────────────────────────────── */}
+        {/* â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           {/* Category pills */}
           <div className="flex-1 min-w-0">
@@ -136,7 +137,7 @@ export default function Shop() {
               type="search"
               value={localSearch}
               onChange={e => setLocalSearch(e.target.value)}
-              placeholder="Search spices…"
+              placeholder="Search spicesâ€¦"
               aria-label="Search products"
               className="form-input pl-9 pr-8 text-sm"
             />
@@ -178,15 +179,15 @@ export default function Shop() {
           </div>
         )}
 
-        {/* ── Product grid ──────────────────────────────────────────────── */}
+        {/* â”€â”€ Product grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {loading ? (
-          <LoadingSpinner label="Loading products…" />
+          <LoadingSpinner label="Loading productsâ€¦" />
         ) : error ? (
-          <EmptyState icon="⚠️" title="Could not load products" message={error}
+          <EmptyState icon="âš ï¸" title="Could not load products" message={error}
             actionLabel="Try Again" onAction={fetchProducts} />
         ) : products.length === 0 ? (
           <EmptyState
-            icon="🔍"
+            icon="ðŸ”"
             title="No products found"
             message={searchQuery
               ? `No results for "${searchQuery}". Try a different search.`
@@ -205,3 +206,4 @@ export default function Shop() {
     </main>
   );
 }
+

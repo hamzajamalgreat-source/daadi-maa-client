@@ -4,6 +4,7 @@ import { ArrowRight, ShoppingCart, Star, Shield, Leaf, Award, Truck, MapPin } fr
 import { productsApi } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { motion } from "motion/react";
 import useCartStore from '../store/cartStore';
 
 function SpiceStrip() {
@@ -117,6 +118,9 @@ const TRUST_STATS = [
   { label: 'Years of Trust',  value: 10,   suffix: '+' },
   { label: '% Organic',       value: 100,  suffix: '%' },
 ];
+
+const fadeUp = { hidden: { opacity: 0, y: 22 }, show: { opacity: 1, y: 0, transition: { duration: 0.48, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.10 } } };
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
@@ -449,3 +453,4 @@ export default function Home() {
     </main>
   );
 }
+

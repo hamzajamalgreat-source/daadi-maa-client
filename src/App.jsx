@@ -1,4 +1,5 @@
-﻿import { lazy, Suspense, useState, useEffect } from "react";
+﻿import { motion } from "motion/react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { productsApi } from "./api/client";
 
@@ -35,7 +36,15 @@ function StorefrontLayout({ children }) {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <CartDrawer />
-      <div className="flex-1 pb-16 md:pb-0">{children}</div>
+      <motion.div
+        key={typeof window !== "undefined" ? window.location.pathname : "page"}
+        className="flex-1 pb-16 md:pb-0"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        {children}
+      </motion.div>
       <Footer />
     </div>
   );
