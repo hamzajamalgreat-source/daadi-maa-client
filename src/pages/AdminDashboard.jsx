@@ -62,9 +62,9 @@ export function AdminShell({ children, title }) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link to="/" className="text-xs text-white/50 hover:text-white transition-colors hidden sm:block">
-            â† Storefront
-          </Link>
+          <Link to="/" className="text-xs text-white/50 hover:text-white transition-colors hidden sm:block">← Storefront</Link>
+
+
           <span className="text-xs text-white/40 hidden sm:block">|</span>
           <span className="text-xs text-white/70 hidden sm:block">{username}</span>
           <button

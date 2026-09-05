@@ -105,7 +105,7 @@ export default function Navbar() {
                   type="search"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search spicesâ€¦"
+                  placeholder="Search spices..."
                   className="w-40 sm:w-52 px-3 py-1.5 rounded-lg border text-sm bg-cream focus:outline-none focus:ring-2 focus:ring-primary"
                   style={{ borderColor: '#EFE8DF', color: '#23120B' }}
                   aria-label="Search products"
