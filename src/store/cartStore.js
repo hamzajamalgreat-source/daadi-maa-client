@@ -58,6 +58,7 @@ const useCartStore = create(
                 image_url: product.image_url,
                 category_name: product.category_name,
                 quantity: qty,
+                addedAt: Date.now(),
               },
             ],
           };

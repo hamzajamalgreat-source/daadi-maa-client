@@ -15,6 +15,23 @@ export default function CartDrawer() {
     useCartStore();
   const navigate = useNavigate();
   const [bestsellers, setBestsellers] = useState([]);
+  const [staleItems, setStaleItems] = useState([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('daadi-cart');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const state = parsed.state || parsed;
+        const cartItems = state.items || [];
+        const now = Date.now();
+        const stale = cartItems
+          .filter(i => i.addedAt && (now - i.addedAt) > 24 * 60 * 60 * 1000)
+          .map(i => i.id);
+        setStaleItems(stale);
+      }
+    } catch { /* ignore */ }
+  }, [isDrawerOpen]);
 
   // Close on Escape key
   const handleKeyDown = useCallback(
@@ -176,6 +193,9 @@ export default function CartDrawer() {
                     >
                       {item.name}
                     </Link>
+                    {staleItems.includes(item.id) && (
+                      <p className="text-[10px] text-amber-600 font-medium mt-0.5">⏰ Still want this?</p>
+                    )}
                     <p className="text-xs text-text-muted mt-0.5">
                       {formatCurrency(item.price)} each
                     </p>
@@ -226,6 +246,26 @@ export default function CartDrawer() {
         {/* Footer — totals + actions */}
         {items.length > 0 && (
           <div className="border-t border-border px-5 py-4 space-y-3 bg-white">
+            {/* Minimum order progress */}
+            {(() => {
+              const MIN = 500;
+              const pct = Math.min(100, Math.round((cartTotal / MIN) * 100));
+              const remaining = Math.max(0, MIN - cartTotal);
+              return (
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs mb-1" style={{ color: '#7C6B5E' }}>
+                    <span>{remaining > 0 ? `Add Rs.${remaining} more for free delivery` : '🎉 You qualify for free delivery!'}</span>
+                    <span className="font-bold" style={{ color: '#8B1E17' }}>{pct}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#EFE8DF' }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${pct}%`, background: pct >= 100 ? '#22c55e' : '#8B1E17' }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
             <div className="flex justify-between text-sm text-text-muted">
               <span>Subtotal ({totalItemCount} {totalItemCount === 1 ? 'item' : 'items'})</span>
               <span className="font-semibold text-text-dark">{formatCurrency(cartTotal)}</span>

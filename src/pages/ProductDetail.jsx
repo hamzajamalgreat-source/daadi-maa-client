@@ -134,6 +134,26 @@ const PRODUCT_DATA = {
     extraImages: []
   }
 };
+const URDU_NAMES = {
+  'quorma-mix':               'قورمہ مکس',
+  'achar-gosht-masala':       'اچار گوشت مصالحہ',
+  'kabuli-pulao-masala':      'کابلی پلاؤ مصالحہ',
+  'bombay-biryani-masala':    'بمبئی بریانی مصالحہ',
+  'tikka-boti-powder':        'ٹکہ بوٹی پاؤڈر',
+  'fish-masala-powder':       'فش مصالحہ پاؤڈر',
+  'peshawari-chatpatta-masala': 'پشاوری چٹ پٹہ مصالحہ',
+  'curry-powder':             'کری پاؤڈر',
+  'garam-masala-powder':      'گرم مصالحہ پاؤڈر',
+  'black-pepper-powder':      'کالی مرچ پاؤڈر',
+  'red-chilli-powder':        'لال مرچ پاؤڈر',
+  'red-chilli-flakes':        'لال مرچ فلیکس',
+  'coriander-powder':         'دھنیا پاؤڈر',
+  'turmeric-powder':          'ہلدی پاؤڈر',
+  'iodized-salt':             'آئوڈائزڈ نمک',
+  'pure-refined-salt':        'خالص نمک',
+  'himalayan-pink-salt':      'ہمالیائی گلابی نمک',
+};
+
 const BADGE_STYLES = {
   "Bestseller":       { bg: "#D97706", text: "#fff" },
   "Popular":          { bg: "#8B1E17", text: "#fff" },
@@ -151,6 +171,18 @@ const PAIRINGS = {
   'peshawari-chatpatta-masala': ['red-chilli-flakes', 'black-pepper-powder'],
   'curry-powder':             ['turmeric-powder', 'coriander-powder', 'red-chilli-powder'],
   'garam-masala-powder':      ['black-pepper-powder', 'coriander-powder'],
+};
+
+const COOKING_INSTRUCTIONS = {
+  'quorma-mix':            '1. Heat oil, add onions and fry until golden.\n2. Add meat and cook until color changes.\n3. Add this masala and stir well.\n4. Add water, cover and cook on low heat for 45 mins.\n5. Garnish with fresh coriander and serve hot.',
+  'achar-gosht-masala':    '1. Heat oil, add whole spices and fry 30 seconds.\n2. Add onions, cook until golden brown.\n3. Add meat, cook until sealed on all sides.\n4. Add this masala and mix well.\n5. Add water and cook on medium heat until meat is tender.\n6. Finish with green chillies.',
+  'kabuli-pulao-masala':   '1. Soak rice for 30 mins and boil until 70% cooked.\n2. In separate pot, cook meat with this masala until tender.\n3. Layer rice over meat.\n4. Add fried onions and carrots on top.\n5. Cover and cook on lowest heat (dum) for 20 mins.',
+  'bombay-biryani-masala': '1. Marinate meat with this masala, yogurt and oil for 30 mins.\n2. Parboil rice with whole spices until 80% cooked.\n3. Layer rice and marinated meat alternately.\n4. Top with fried onions and saffron.\n5. Seal pot and cook on dum for 25 mins.',
+  'tikka-boti-powder':     '1. Mix this powder with yogurt and lemon juice.\n2. Marinate meat for minimum 2 hours (overnight preferred).\n3. Grill or bake at 200°C for 20–25 mins.\n4. Baste with butter halfway through.\n5. Serve with mint chutney and naan.',
+  'fish-masala-powder':    '1. Clean fish and make cuts on the sides.\n2. Mix this masala with lemon juice and oil to form a paste.\n3. Apply paste generously on fish.\n4. Marinate for 30 mins.\n5. Fry in hot oil for 4–5 mins each side or bake at 180°C for 20 mins.',
+  'peshawari-chatpatta-masala': 'Sprinkle directly on fruit chaat, dahi bhalla, or any snack. Mix into yogurt for a tangy dip. Add to boiled chickpeas for instant chana chaat. Use as a finishing spice on grilled meats.',
+  'curry-powder':          '1. Heat oil, add onions and cook until golden.\n2. Add ginger-garlic paste and cook 2 mins.\n3. Add this curry powder and stir.\n4. Add meat or vegetables and mix well.\n5. Add water and cook until done.\n6. Serve with rice or roti.',
+  'garam-masala-powder':   'Add a small pinch at the end of cooking any curry, biryani, or dal. Do not cook too long — add in the final 2 minutes. Use sparingly as a finishing spice for maximum fragrance.',
 };
 
 const RECENTLY_VIEWED_KEY = 'daadi-recently-viewed';
@@ -244,11 +276,12 @@ export default function ProductDetail() {
   const [adding, setAdding]       = useState(false);
   const [activeImg, setActiveImg] = useState(0);
   const [lightbox, setLightbox]   = useState(false);
+  const [activeTab, setActiveTab] = useState('ingredients');
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const touchStartX = useRef(null);
 
   useEffect(() => {
-    setLoading(true); setError(""); setQuantity(1); setActiveImg(0); setLightbox(false);
+    setLoading(true); setError(""); setQuantity(1); setActiveImg(0); setLightbox(false); setActiveTab('ingredients');
     productsApi.getBySlug(slug)
       .then(async res => {
         setProduct(res.data);
@@ -461,6 +494,13 @@ export default function ProductDetail() {
                 {product.name}
               </h1>
 
+              {URDU_NAMES[slug] && (
+                <p className="text-lg mb-4 font-medium" dir="rtl"
+                  style={{ color: '#7C6B5E', fontFamily: 'Georgia, serif' }}>
+                  {URDU_NAMES[slug]}
+                </p>
+              )}
+
               <div className="flex items-center gap-1.5 mb-4">
                 {Array(5).fill(0).map((_, i) => (
                   <Star key={i} size={16} style={{ color: "#D97706", fill: "#D97706" }} />
@@ -498,16 +538,42 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* Ingredients — plain text only, no table */}
+              {/* Ingredients / How to Use tabs */}
               {pd.ingredientText && (
-                <div className="rounded-xl px-4 py-3 mb-5 border"
-                  style={{ background: "#FBF9F5", borderColor: "#EFE8DF" }}>
-                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "#23120B" }}>
-                    Ingredients
-                  </p>
-                  <p className="text-sm leading-relaxed" style={{ color: "#7C6B5E" }}>
-                    {pd.ingredientText}
-                  </p>
+                <div className="rounded-xl mb-5 border overflow-hidden"
+                  style={{ borderColor: "#EFE8DF" }}>
+                  {/* Tab headers */}
+                  <div className="flex border-b" style={{ borderColor: "#EFE8DF" }}>
+                    {[
+                      { id: 'ingredients', label: 'Ingredients' },
+                      ...(COOKING_INSTRUCTIONS[slug] ? [{ id: 'howto', label: 'How to Use' }] : [])
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className="flex-1 px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-colors"
+                        style={{
+                          background: activeTab === tab.id ? '#FBF9F5' : '#fff',
+                          color: activeTab === tab.id ? '#23120B' : '#7C6B5E',
+                          borderBottom: activeTab === tab.id ? '2px solid #8B1E17' : '2px solid transparent'
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Tab content */}
+                  <div className="px-4 py-3" style={{ background: "#FBF9F5" }}>
+                    {activeTab === 'ingredients' ? (
+                      <p className="text-sm leading-relaxed" style={{ color: "#7C6B5E" }}>
+                        {pd.ingredientText}
+                      </p>
+                    ) : (
+                      <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: "#7C6B5E" }}>
+                        {COOKING_INSTRUCTIONS[slug]}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -544,6 +610,15 @@ export default function ProductDetail() {
 
               {product.in_stock && (
                 <>
+                  {/* COD Trust Seal */}
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-4"
+                    style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)' }}>
+                    <span className="text-base">💵</span>
+                    <div>
+                      <p className="text-xs font-bold text-green-700">100% Cash on Delivery</p>
+                      <p className="text-[10px]" style={{ color: '#7C6B5E' }}>Pay when your order arrives. No advance payment needed.</p>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-4 mb-5">
                     <span className="text-sm font-semibold" style={{ color: "#23120B" }}>Quantity:</span>
                     <div className="flex items-center rounded-xl overflow-hidden border bg-white" style={{ borderColor: "#EFE8DF" }}>

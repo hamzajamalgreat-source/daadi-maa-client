@@ -1,6 +1,6 @@
-﻿import { lazy, Suspense } from "react";
+﻿import { lazy, Suspense, useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { productsApi } from "./api/client";
 
 // Layout components — always loaded (part of the shell)
 import Navbar          from "./components/Navbar";
@@ -58,15 +58,48 @@ function ScrollToTop() {
 // ─── 404 page ─────────────────────────────────────────────────────────────────
 
 function NotFound() {
+  const [suggestions, setSuggestions] = useState([]);
+  useEffect(() => {
+    productsApi.getAll().then(r => {
+      const badged = r.data.filter(p => p.badge).slice(0, 4);
+      const rest = r.data.filter(p => !p.badge).slice(0, 4 - badged.length);
+      setSuggestions([...badged, ...rest]);
+    }).catch(() => {});
+  }, []);
+
   return (
     <StorefrontLayout>
-      <div className="container-page py-24 text-center">
+      <div className="container-page py-16 text-center">
         <p className="text-7xl mb-4" aria-hidden="true">🌶️</p>
         <h1 className="font-serif text-3xl font-bold text-text-dark mb-3">Page Not Found</h1>
         <p className="text-text-muted mb-8">
           The page you are looking for does not exist or has been moved.
         </p>
-        <a href="/" className="btn-primary">Back to Home</a>
+        <a href="/" className="btn-primary mb-12 inline-flex">Back to Home</a>
+        {suggestions.length > 0 && (
+          <div className="mt-8 text-left">
+            <h2 className="font-serif text-xl font-bold text-text-dark mb-6 text-center">
+              While you're here, check these out
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+              {suggestions.map(p => (
+                <a key={p.id} href={'/shop/' + p.slug}
+                  className="bg-white rounded-2xl border overflow-hidden hover:shadow-md transition-shadow"
+                  style={{ borderColor: '#EFE8DF' }}>
+                  <div className="aspect-square bg-cream p-3">
+                    <img src={p.image_url || '/placeholder-spice.svg'} alt={p.name}
+                      className="w-full h-full object-contain"
+                      onError={e => { e.target.src = '/placeholder-spice.svg'; }} />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs font-semibold text-text-dark line-clamp-2 mb-1">{p.name}</p>
+                    <p className="text-sm font-bold" style={{ color: '#8B1E17' }}>Rs. {p.price}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </StorefrontLayout>
   );

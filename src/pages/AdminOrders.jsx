@@ -391,8 +391,52 @@ export default function AdminOrders() {
                       <td className="px-4 py-3 font-bold text-primary text-xs whitespace-nowrap">
                         {formatCurrency(order.total_amount)}
                       </td>
-                      <td className="px-4 py-3">
-                        <OrderStatusBadge status={order.status} />
+                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                        <div className="flex flex-col gap-1">
+                          <OrderStatusBadge status={order.status} />
+                          {order.status === 'pending' && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const res = await ordersApi.updateStatus(order.id, 'processing');
+                                  handleStatusChange(res.data);
+                                  toast.success(`#${order.id} confirmed`);
+                                } catch (err) { toast.error(err.message); }
+                              }}
+                              className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                            >
+                              Confirm
+                            </button>
+                          )}
+                          {order.status === 'processing' && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const res = await ordersApi.updateStatus(order.id, 'shipped');
+                                  handleStatusChange(res.data);
+                                  toast.success(`#${order.id} dispatched`);
+                                } catch (err) { toast.error(err.message); }
+                              }}
+                              className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500 text-white hover:bg-purple-600 transition-colors"
+                            >
+                              Dispatch
+                            </button>
+                          )}
+                          {order.status === 'shipped' && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const res = await ordersApi.updateStatus(order.id, 'delivered');
+                                  handleStatusChange(res.data);
+                                  toast.success(`#${order.id} delivered`);
+                                } catch (err) { toast.error(err.message); }
+                              }}
+                              className="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500 text-white hover:bg-green-600 transition-colors"
+                            >
+                              Deliver
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-gray-400 text-[10px] whitespace-nowrap">
                         <div className="flex items-center gap-1">
@@ -403,14 +447,55 @@ export default function AdminOrders() {
                         </div>
                       </td>
                       <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={() => handleDelete(order)}
-                          disabled={deleting === order.id}
-                          aria-label={`Delete order #${order.id}`}
-                          className="p-1.5 rounded-lg text-gray-300 hover:text-red-500
-                                     hover:bg-red-50 transition-colors disabled:opacity-40">
-                          <Trash2 size={13} />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => {
+                              const slip = `
+                                <html><head><title>Order #${order.id}</title>
+                                <style>
+                                  body { font-family: Arial, sans-serif; padding: 24px; max-width: 400px; margin: 0 auto; }
+                                  h1 { font-size: 20px; border-bottom: 2px solid #8B1E17; padding-bottom: 8px; color: #8B1E17; }
+                                  .row { display: flex; justify-content: space-between; margin: 4px 0; font-size: 13px; }
+                                  .label { color: #666; }
+                                  .items { border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 8px 0; margin: 12px 0; }
+                                  .total { font-weight: bold; font-size: 16px; color: #8B1E17; }
+                                  .footer { margin-top: 16px; font-size: 11px; color: #999; text-align: center; }
+                                </style></head>
+                                <body>
+                                  <h1>Daadi Maa Spices — Order #${order.id}</h1>
+                                  <div class="row"><span class="label">Customer:</span><span>${order.customer_name}</span></div>
+                                  <div class="row"><span class="label">Phone:</span><span>${order.customer_phone}</span></div>
+                                  <div class="row"><span class="label">Address:</span><span style="max-width:200px;text-align:right">${order.customer_address}</span></div>
+                                  <div class="row"><span class="label">Date:</span><span>${new Date(order.created_at).toLocaleDateString('en-PK')}</span></div>
+                                  <div class="items">
+                                    <div class="label" style="margin-bottom:6px;font-size:12px;font-weight:bold">ITEMS:</div>
+                                    ${(order.items || []).map(i => `<div class="row"><span>${i.product_name} x${i.quantity}</span><span>Rs.${i.unit_price * i.quantity}</span></div>`).join('')}
+                                  </div>
+                                  <div class="row total"><span>TOTAL:</span><span>Rs.${order.total_amount}</span></div>
+                                  <div class="row"><span class="label">Payment:</span><span>Cash on Delivery</span></div>
+                                  <div class="footer">F &amp; J Sons Foods (Pvt) Ltd. · 0314-9007440</div>
+                                </body></html>
+                              `;
+                              const w = window.open('', '_blank', 'width=500,height=600');
+                              w.document.write(slip);
+                              w.document.close();
+                              w.print();
+                            }}
+                            aria-label={`Print slip for order #${order.id}`}
+                            className="p-1.5 rounded-lg text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                            title="Print slip"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(order)}
+                            disabled={deleting === order.id}
+                            aria-label={`Delete order #${order.id}`}
+                            className="p-1.5 rounded-lg text-gray-300 hover:text-red-500
+                                       hover:bg-red-50 transition-colors disabled:opacity-40">
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

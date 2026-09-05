@@ -4,6 +4,7 @@ import { ArrowRight, ShoppingCart, Star, Shield, Leaf, Award, Truck, MapPin } fr
 import { productsApi } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import useCartStore from '../store/cartStore';
 
 function SpiceStrip() {
   return (
@@ -98,9 +99,9 @@ function HeroSlideshow({ products }) {
 }
 
 const CATEGORIES = [
-  { slug: 'recipe-mixes',  label: 'Recipe Mixes',   desc: 'Complete masala blends for authentic dishes', emoji: '🍛', from: '#8B1E17', to: '#4A0E0A', count: 4 },
-  { slug: 'spice-powders', label: 'Spice Powders',  desc: 'Freshly ground single-spice powders',          emoji: '🌶️', from: '#D97706', to: '#7C3A00', count: 10 },
-  { slug: 'salts',         label: 'Himalayan Salts', desc: 'Pure Himalayan salts — Pink, Iodized & Refined',emoji: '🧂', from: '#3E5244', to: '#1E2E24', count: 3 },
+  { slug: 'recipe-mixes',  label: 'Recipe Mixes',   desc: 'Complete masala blends for authentic dishes', emoji: '🍛', from: '#8B1E17', to: '#4A0E0A', count: 4, recipes: 'Quorma, Biryani, Pulao, Achar Gosht' },
+  { slug: 'spice-powders', label: 'Spice Powders',  desc: 'Freshly ground single-spice powders',          emoji: '🌶️', from: '#D97706', to: '#7C3A00', count: 10, recipes: 'Karahi, Dal, Sabzi, Chai Masala' },
+  { slug: 'salts',         label: 'Himalayan Salts', desc: 'Pure Himalayan salts — Pink, Iodized & Refined',emoji: '🧂', from: '#3E5244', to: '#1E2E24', count: 3, recipes: 'Daily Cooking, Baking, Grilling' },
 ];
 
 const TESTIMONIALS = [
@@ -120,6 +121,7 @@ const TRUST_STATS = [
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { items: cartItems } = useCartStore();
 
   useEffect(() => {
     productsApi.getAll()
@@ -135,6 +137,28 @@ export default function Home() {
 
   return (
     <main>
+      {/* Continue where you left off */}
+      {cartItems.length > 0 && (
+        <div
+          className="w-full px-4 py-3 flex items-center justify-between gap-4"
+          style={{ background: '#8B1E17' }}
+          role="banner"
+        >
+          <div className="flex items-center gap-2 text-white text-sm">
+            <ShoppingCart size={16} className="flex-shrink-0" />
+            <span>
+              You have <strong>{cartItems.reduce((s, i) => s + i.quantity, 0)} item{cartItems.reduce((s, i) => s + i.quantity, 0) !== 1 ? 's' : ''}</strong> in your cart
+            </span>
+          </div>
+          <Link
+            to="/checkout"
+            className="flex-shrink-0 text-xs font-bold px-4 py-2 rounded-lg transition-colors"
+            style={{ background: '#D97706', color: '#fff' }}
+          >
+            Complete Order →
+          </Link>
+        </div>
+      )}
       <section className="relative overflow-hidden" style={{ background: '#23120B' }} aria-label="Hero">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full blur-3xl" style={{ background: 'rgba(217,119,6,0.10)' }} />
@@ -279,6 +303,11 @@ export default function Home() {
                       Shop <ArrowRight size={14} />
                     </span>
                   </div>
+                  {cat.recipes && (
+                    <p className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                      Perfect for: {cat.recipes}
+                    </p>
+                  )}
                 </div>
               </Link>
             ))}
@@ -298,9 +327,17 @@ export default function Home() {
             </Link>
           </div>
           {loading ? <LoadingSpinner label="Loading products…" /> : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-              {featured.map(product => <ProductCard key={product.id} product={product} />)}
-            </div>
+            <>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs font-bold px-3 py-1 rounded-full text-white" style={{ background: '#8B1E17' }}>
+                  🔥 Most Ordered in KPK
+                </span>
+                <span className="text-xs" style={{ color: '#7C6B5E' }}>Top picks from Peshawar, Mardan &amp; beyond</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                {featured.map(product => <ProductCard key={product.id} product={product} />)}
+              </div>
+            </>
           )}
           <div className="text-center mt-10">
             <Link to="/shop" className="btn-outline text-base px-8 py-3 inline-flex items-center gap-2">

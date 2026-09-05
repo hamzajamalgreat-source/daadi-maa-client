@@ -17,6 +17,14 @@ export default function ProductCard({ product }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [adding, setAdding]       = useState(false);
 
+  const isNew = (() => {
+    if (!product.created_at) return false;
+    const created = new Date(product.created_at);
+    const now = new Date();
+    const diffDays = (now - created) / (1000 * 60 * 60 * 24);
+    return diffDays <= 30;
+  })();
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -62,6 +70,12 @@ export default function ProductCard({ product }) {
           <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px]
                            font-bold shadow-sm z-10 ${BADGE_STYLES[product.badge] || "bg-primary text-white"}`}>
             {product.badge}
+          </span>
+        )}
+        {isNew && !product.badge && (
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm z-10 text-white"
+            style={{ background: '#3E5244' }}>
+            New
           </span>
         )}
 

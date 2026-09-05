@@ -172,6 +172,15 @@ export default function Checkout() {
   const [placedOrder, setPlacedOrder] = useState(null); // set on success → shows overlay
   const submitLock = useRef(false);
 
+  // Derive current step from form state
+  const currentStep = (() => {
+    if (form.customer_name.trim() && form.customer_phone.trim()) {
+      if (form.customer_address.trim().length >= 10) return 3;
+      return 2;
+    }
+    return 1;
+  })();
+
   const subtotal   = roundCurrency(items.reduce((s, i) => s + i.price * i.quantity, 0));
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -284,6 +293,36 @@ export default function Checkout() {
 
         <h1 className="section-title mb-8">Checkout</h1>
 
+        {/* Step indicator */}
+        <div className="flex items-center mb-8">
+          {[
+            { n: 1, label: 'Contact' },
+            { n: 2, label: 'Address' },
+            { n: 3, label: 'Confirm' },
+          ].map(({ n, label }, i) => (
+            <div key={n} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
+                  style={{
+                    background: currentStep >= n ? '#8B1E17' : '#EFE8DF',
+                    color: currentStep >= n ? '#fff' : '#7C6B5E',
+                  }}
+                >
+                  {currentStep > n ? '✓' : n}
+                </div>
+                <span className="text-xs font-medium" style={{ color: currentStep >= n ? '#8B1E17' : '#7C6B5E' }}>
+                  {label}
+                </span>
+              </div>
+              {i < 2 && (
+                <div className="flex-1 h-0.5 mx-3 self-start mt-4"
+                  style={{ background: currentStep > n ? '#8B1E17' : '#EFE8DF' }} />
+              )}
+            </div>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* ── Form ──────────────────────────────────────────────────── */}
@@ -381,6 +420,27 @@ export default function Checkout() {
                 {errors.customer_address && (
                   <p id="customer_address-error" className="form-error" role="alert">{errors.customer_address}</p>
                 )}
+                {/* Delivery estimate based on city mentioned in address */}
+                {form.customer_address.length > 3 && (() => {
+                  const addr = form.customer_address.toLowerCase();
+                  let estimate = null;
+                  if (/mardan|swabi|nowshera|charsadda|peshawar|kohat|abbottabad|mansehra|haripur/.test(addr)) {
+                    estimate = { time: 'Same day – 1 day', color: '#22c55e', icon: '⚡' };
+                  } else if (/lahore|faisalabad|gujranwala|multan|rawalpindi|islamabad|sialkot|gujrat/.test(addr)) {
+                    estimate = { time: '2–3 days', color: '#D97706', icon: '🚚' };
+                  } else if (/karachi|hyderabad|sukkur|larkana|quetta|hub/.test(addr)) {
+                    estimate = { time: '3–5 days', color: '#8B1E17', icon: '📦' };
+                  } else if (addr.length > 5) {
+                    estimate = { time: '2–4 days', color: '#7C6B5E', icon: '📮' };
+                  }
+                  if (!estimate) return null;
+                  return (
+                    <p className="text-xs mt-1.5 flex items-center gap-1.5 font-medium"
+                      style={{ color: estimate.color }}>
+                      {estimate.icon} Estimated delivery: <strong>{estimate.time}</strong>
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* Notes */}

@@ -480,6 +480,8 @@ export default function AdminProducts() {
   const [modal, setModal]           = useState(undefined); // undefined=closed, null=new, obj=edit
   const [deleting, setDeleting]     = useState(null);
   const [toggling, setToggling]     = useState(null);
+  const [editingPrice, setEditingPrice] = useState(null);
+  const [editPriceVal, setEditPriceVal] = useState('');
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -654,8 +656,41 @@ export default function AdminProducts() {
                       {product.category_name || '—'}
                     </td>
 
-                    <td className="px-4 py-3 font-bold text-primary text-sm whitespace-nowrap">
-                      {formatCurrency(product.price)}
+                    <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                      {editingPrice === product.id ? (
+                        <form onSubmit={async (e) => {
+                          e.preventDefault();
+                          const newPrice = parseFloat(editPriceVal);
+                          if (!newPrice || newPrice <= 0) { setEditingPrice(null); return; }
+                          try {
+                            const res = await productsApi.update(product.id, { price: newPrice });
+                            setProducts(prev => prev.map(p => p.id === product.id ? { ...p, ...res.data } : p));
+                            toast.success(`Price updated to Rs.${newPrice}`);
+                          } catch (err) { toast.error(err.message); }
+                          setEditingPrice(null);
+                        }} className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            value={editPriceVal}
+                            onChange={e => setEditPriceVal(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Escape') setEditingPrice(null); }}
+                            autoFocus
+                            className="w-20 px-2 py-1 text-xs border rounded border-primary focus:outline-none"
+                            min="0.01" step="0.01"
+                          />
+                          <button type="submit" className="text-xs text-green-600 font-bold hover:text-green-700">✓</button>
+                          <button type="button" onClick={() => setEditingPrice(null)} className="text-xs text-gray-400 hover:text-gray-600">✕</button>
+                        </form>
+                      ) : (
+                        <button
+                          onClick={() => { setEditingPrice(product.id); setEditPriceVal(String(product.price)); }}
+                          className="font-bold text-primary text-sm hover:underline cursor-pointer group flex items-center gap-1"
+                          title="Click to edit price"
+                        >
+                          {formatCurrency(product.price)}
+                          <svg className="opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                      )}
                     </td>
 
                     <td className="px-4 py-3">
