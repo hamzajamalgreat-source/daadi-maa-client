@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Lock, Eye, EyeOff, User } from 'lucide-react';
 import useAuthStore from '../store/authStore';
+import { motion } from "motion/react";
 
 export default function AdminLogin() {
   const { login, isAuthenticated, isLoading, error, clearError } = useAuthStore();
@@ -40,7 +41,11 @@ export default function AdminLogin() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl shadow-2xl p-8" style={{ background: 'rgba(255,255,255,0.97)' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-2xl shadow-2xl p-8" style={{ background: 'rgba(255,255,255,0.97)' }}>
           <h2 className="font-serif font-semibold text-center mb-6" style={{ color: '#23120B' }}>Sign in to continue</h2>
 
           <form onSubmit={handleSubmit} noValidate>
@@ -76,16 +81,18 @@ export default function AdminLogin() {
               </div>
             </div>
 
-            <button type="submit" disabled={isLoading}
+            <motion.button
+              type="submit" disabled={isLoading}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white transition-all active:scale-[0.98] disabled:opacity-60"
               style={{ background: '#8B1E17' }}>
               {isLoading
                 ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Signing in…</>
                 : 'Sign In'}
-            </button>
+            </motion.button>
           </form>
-        </div>
-
+        </motion.div>
         <div className="text-center mt-5">
           <Link to="/" className="text-xs transition-colors" style={{ color: 'rgba(255,255,255,0.35)' }}
             onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.65)'}

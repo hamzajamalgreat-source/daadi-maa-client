@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, ShoppingBag, User, Phone, MapPin,
@@ -11,7 +11,7 @@ import { formatCurrency, roundCurrency } from '../utils/formatCurrency';
 import OrderStatusBadge from '../components/OrderStatusBadge';
 import EmptyState from '../components/EmptyState';
 
-// ─── Validation ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function validatePhone(phone) {
   return /^(03\d{2}[-\s]?\d{7}|03\d{9})$/.test(phone.trim());
 }
@@ -25,9 +25,9 @@ const INITIAL_FORM = {
   customer_address: '', notes: '',
 };
 
-// ─── Order Success Overlay ─────────────────────────────────────────────────────
+// â”€â”€â”€ Order Success Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function OrderSuccessOverlay({ order, onGoHome }) {
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(12);
 
   // Auto-redirect countdown
   useEffect(() => {
@@ -73,7 +73,8 @@ function OrderSuccessOverlay({ order, onGoHome }) {
           <div className="flex items-center justify-between bg-cream rounded-xl px-4 py-3">
             <div>
               <p className="text-xs text-text-muted uppercase tracking-wide">Order ID</p>
-              <p className="font-mono font-bold text-text-dark text-lg">#{order.id}</p>
+              <p className="font-mono font-bold text-text-dark text-2xl">#{order.id}</p>
+              <p className="text-xs text-text-muted mt-0.5">Save this ID — use it on the Track Order page</p>
             </div>
             <OrderStatusBadge status={order.status} />
           </div>
@@ -89,7 +90,7 @@ function OrderSuccessOverlay({ order, onGoHome }) {
                   <li key={item.id} className="flex justify-between text-sm">
                     <span className="text-text-muted">
                       {item.product_name}
-                      <span className="text-text-dark font-medium"> × {item.quantity}</span>
+                      <span className="text-text-dark font-medium"> x {item.quantity}</span>
                     </span>
                     <span className="font-semibold text-text-dark flex-shrink-0 ml-2">
                       {formatCurrency(item.unit_price * item.quantity)}
@@ -123,7 +124,7 @@ function OrderSuccessOverlay({ order, onGoHome }) {
             </div>
           </div>
 
-          {/* What happens next — brand cream */}
+          {/* What happens next â€” brand cream */}
           <div className="bg-cream border border-border rounded-xl p-3 text-xs text-text-muted">
             <p className="font-semibold text-text-dark mb-1.5">What happens next?</p>
             <p>1. Our team will call you on <strong className="text-text-dark">{order.customer_phone}</strong> to confirm.</p>
@@ -151,8 +152,8 @@ function OrderSuccessOverlay({ order, onGoHome }) {
               📱 Confirm via WhatsApp
             </a>
             <p className="text-center text-xs text-text-muted">
-              Redirecting to home in{' '}
-              <span className="font-bold text-primary">{countdown}</span>s…
+              Redirecting to home in 
+              Redirecting in <span className="font-bold text-primary">{countdown}</span>s...
             </p>
           </div>
         </div>
@@ -161,7 +162,7 @@ function OrderSuccessOverlay({ order, onGoHome }) {
   );
 }
 
-// ─── Checkout page ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Checkout page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function Checkout() {
   const { items, clearCart } = useCartStore();
   const navigate = useNavigate();
@@ -169,7 +170,7 @@ export default function Checkout() {
   const [form, setForm]           = useState(INITIAL_FORM);
   const [errors, setErrors]       = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [placedOrder, setPlacedOrder] = useState(null); // set on success → shows overlay
+  const [placedOrder, setPlacedOrder] = useState(null); // set on success â†’ shows overlay
   const submitLock = useRef(false);
 
   // Derive current step from form state
@@ -255,12 +256,12 @@ export default function Checkout() {
       const res = await ordersApi.place(payload);
       // Clear cart immediately
       clearCart();
-      // Show success overlay — this triggers the 5s countdown
+      // Show success overlay â€” this triggers the 5s countdown
       setPlacedOrder(res.data);
       // Also fire a toast so it's visible even if overlay is scrolled
       toast.success(`Order #${res.data.id} placed successfully!`, {
         duration: 5000,
-        icon: '✅',
+        icon: 'âœ…',
         style: { fontWeight: '600' },
       });
     } catch (err) {
@@ -277,7 +278,7 @@ export default function Checkout() {
 
   return (
     <>
-      {/* Success overlay — rendered on top of the checkout page */}
+      {/* Success overlay â€” rendered on top of the checkout page */}
       {placedOrder && (
         <OrderSuccessOverlay order={placedOrder} onGoHome={handleGoHome} />
       )}
@@ -309,7 +310,7 @@ export default function Checkout() {
                     color: currentStep >= n ? '#fff' : '#7C6B5E',
                   }}
                 >
-                  {currentStep > n ? '✓' : n}
+                  {currentStep > n ? 'âœ“' : n}
                 </div>
                 <span className="text-xs font-medium" style={{ color: currentStep >= n ? '#8B1E17' : '#7C6B5E' }}>
                   {label}
@@ -325,7 +326,7 @@ export default function Checkout() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* ── Form ──────────────────────────────────────────────────── */}
+          {/* â”€â”€ Form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <form
             onSubmit={handleSubmit}
             noValidate
@@ -425,13 +426,13 @@ export default function Checkout() {
                   const addr = form.customer_address.toLowerCase();
                   let estimate = null;
                   if (/mardan|swabi|nowshera|charsadda|peshawar|kohat|abbottabad|mansehra|haripur/.test(addr)) {
-                    estimate = { time: 'Same day – 1 day', color: '#22c55e', icon: '⚡' };
+                    estimate = { time: 'Same day - 1 day', color: '#22c55e', icon: '⚡' };
                   } else if (/lahore|faisalabad|gujranwala|multan|rawalpindi|islamabad|sialkot|gujrat/.test(addr)) {
-                    estimate = { time: '2–3 days', color: '#D97706', icon: '🚚' };
+                    estimate = { time: '2-3 days', color: '#D97706', icon: '🚚' };
                   } else if (/karachi|hyderabad|sukkur|larkana|quetta|hub/.test(addr)) {
-                    estimate = { time: '3–5 days', color: '#8B1E17', icon: '📦' };
+                    estimate = { time: '3-5 days', color: '#8B1E17', icon: '📦' };
                   } else if (addr.length > 5) {
-                    estimate = { time: '2–4 days', color: '#7C6B5E', icon: '📮' };
+                    estimate = { time: '2-4 days', color: '#7C6B5E', icon: '📮' };
                   }
                   if (!estimate) return null;
                   return (
@@ -454,14 +455,14 @@ export default function Checkout() {
                     id="notes" name="notes"
                     value={form.notes} onChange={handleChange}
                     rows={2}
-                    placeholder="Preferred delivery time, landmark, special instructions…"
+                    placeholder="Preferred delivery time, landmark, special instructions..."
                     className="form-input pl-10 resize-none"
                   />
                 </div>
               </div>
             </div>
 
-            {/* COD notice — brand cream with accent border */}
+            {/* COD notice â€” brand cream with accent border */}
             <div className="card p-5 bg-cream border-l-4 border-accent">
               <p className="font-semibold text-text-dark mb-1 flex items-center gap-2">
                 💵 Payment Method
@@ -481,7 +482,7 @@ export default function Checkout() {
               {submitting ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
-                  Placing Order…
+                  Placing Order...
                 </>
               ) : (
                 <>
@@ -492,7 +493,7 @@ export default function Checkout() {
             </button>
           </form>
 
-          {/* ── Order summary sidebar ──────────────────────────────────── */}
+          {/* â”€â”€ Order summary sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <aside aria-label="Order summary">
             <div className="card p-6 sticky top-24">
               <h2 className="font-serif font-semibold text-lg mb-5">Order Summary</h2>
@@ -508,7 +509,7 @@ export default function Checkout() {
                         onError={e => { e.target.src = '/placeholder-spice.svg'; }}
                       />
                       <span className="truncate text-text-muted">
-                        {item.name} <span className="text-text-dark font-medium">× {item.quantity}</span>
+                      {item.name} <span className="text-text-dark font-medium">x {item.quantity}</span>
                       </span>
                     </div>
                     <span className="flex-shrink-0 font-semibold text-text-dark">
@@ -539,3 +540,4 @@ export default function Checkout() {
     </>
   );
 }
+

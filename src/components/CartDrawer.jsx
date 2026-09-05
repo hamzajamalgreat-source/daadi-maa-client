@@ -124,7 +124,7 @@ export default function CartDrawer() {
           {items.length === 0 ? (
             <div>
               <EmptyState
-                icon="≡ƒ¢Æ"
+                icon="🛒"
                 title="Your cart is empty"
                 message="Browse our spices and add items to your cart."
                 actionLabel="Shop Now"
@@ -197,7 +197,7 @@ export default function CartDrawer() {
                       {item.name}
                     </Link>
                     {staleItems.includes(item.id) && (
-                      <p className="text-[10px] text-amber-600 font-medium mt-0.5">ΓÅ░ Still want this?</p>
+                      <p className="text-[10px] text-amber-600 font-medium mt-0.5">⏰ Still want this?</p>
                     )}
                     <p className="text-xs text-text-muted mt-0.5">
                       {formatCurrency(item.price)} each
@@ -257,7 +257,7 @@ export default function CartDrawer() {
               return (
                 <div className="mb-3">
                   <div className="flex justify-between text-xs mb-1" style={{ color: '#7C6B5E' }}>
-                    <span>{remaining > 0 ? `Add Rs.${remaining} more for free delivery` : '≡ƒÄë You qualify for free delivery!'}</span>
+                    <span>{remaining > 0 ? `Add Rs.${remaining} more for free delivery` : '🎉 You qualify for free delivery!'}</span>
                     <span className="font-bold" style={{ color: '#8B1E17' }}>{pct}%</span>
                   </div>
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#EFE8DF' }}>
@@ -278,14 +278,16 @@ export default function CartDrawer() {
               <span className="text-primary text-lg">{formatCurrency(cartTotal)}</span>
             </div>
             <p className="text-xs text-text-muted text-center">
-              Cash on Delivery ┬╖ Free delivery info at checkout
+              Cash on Delivery · Free delivery info at checkout
             </p>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
               onClick={handleCheckout}
               className="btn-primary w-full text-base py-3"
             >
               Proceed to Checkout
-            </button>
+            </motion.button>
             <button
               onClick={closeDrawer}
               className="btn-ghost w-full text-sm"

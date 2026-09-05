@@ -64,7 +64,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 rounded-lg p-1"
-            aria-label="Daadi Maa Spices — Home">
+            aria-label="Daadi Maa Spices â€” Home">
             <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center
                             flex-shrink-0 shadow-sm border border-border overflow-hidden">
               <img src="/daadi-maa-logo.png" alt="Daadi Maa logo"
@@ -97,7 +97,7 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1">
-            {/* Inline search — expands when open */}
+            {/* Inline search â€” expands when open */}
             {searchOpen ? (
               <form onSubmit={handleSearchSubmit} className="flex items-center gap-1 animate-fade-in">
                 <input
@@ -105,7 +105,7 @@ export default function Navbar() {
                   type="search"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search spices…"
+                  placeholder="Search spicesâ€¦"
                   className="w-40 sm:w-52 px-3 py-1.5 rounded-lg border text-sm bg-cream focus:outline-none focus:ring-2 focus:ring-primary"
                   style={{ borderColor: '#EFE8DF', color: '#23120B' }}
                   aria-label="Search products"
@@ -120,12 +120,14 @@ export default function Navbar() {
                 </button>
               </form>
             ) : (
-              <button onClick={() => setSearchOpen(true)} aria-label="Open search"
+              <motion.button onClick={() => setSearchOpen(true)} aria-label="Open search" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.90 }}
                 className="p-2.5 rounded-lg text-text-muted hover:text-primary hover:bg-cream-dark transition-colors hidden sm:flex">
                 <Search size={20} />
-              </button>
+              </motion.button>
             )}
-            <button onClick={openDrawer}
+            <motion.button onClick={openDrawer}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.90 }}
               aria-label={`Shopping cart — ${totalItems} item${totalItems !== 1 ? "s" : ""}`}
               className="relative p-2.5 rounded-lg text-text-muted hover:text-primary hover:bg-cream-dark transition-colors">
               <ShoppingCart size={22} />
@@ -139,7 +141,7 @@ export default function Navbar() {
                   {totalItems > 99 ? "99+" : totalItems}
                 </motion.span>
               )}
-            </button>
+            </motion.button>
             <button onClick={() => setMobileOpen(v => !v)}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen} aria-controls="mobile-nav"

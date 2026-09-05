@@ -104,16 +104,16 @@ export default function Shop() {
         <div className="flex items-center justify-center py-3 text-sm text-text-muted gap-2 transition-all"
           style={{ height: pullY > 20 ? `${Math.min(pullY, 56)}px` : '0px', overflow: 'hidden' }}>
           <RefreshCw size={16} className={pulling ? 'animate-spin' : ''} />
-          {pulling ? 'Refreshingâ€¦' : 'Release to refresh'}
+          {pulling ? 'Refreshing...' : 'Release to refresh'}
         </div>
       )}
 
-      {/* â”€â”€ Page header â€” cream, consistent with body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* Page header */}
       <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="border-b border-border">
         <div className="container-page py-8">
           <h1 className="section-title mb-1">Our Spices</h1>
           <p className="text-text-muted text-sm">
-            {loading ? 'Loadingâ€¦' : `${products.length} product${products.length !== 1 ? 's' : ''} Â· ${activeLabel}`}
+            {loading ? 'Loading...' : products.length + ' product' + (products.length !== 1 ? 's' : '') + ' - ' + activeLabel}
           </p>
         </div>
       </motion.div>
@@ -137,7 +137,7 @@ export default function Shop() {
               type="search"
               value={localSearch}
               onChange={e => setLocalSearch(e.target.value)}
-              placeholder="Search spicesâ€¦"
+              placeholder="Search spices..."
               aria-label="Search products"
               className="form-input pl-9 pr-8 text-sm"
             />
@@ -181,13 +181,13 @@ export default function Shop() {
 
         {/* â”€â”€ Product grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {loading ? (
-          <LoadingSpinner label="Loading productsâ€¦" />
+          <LoadingSpinner label="Loading products..." />
         ) : error ? (
           <EmptyState icon="âš ï¸" title="Could not load products" message={error}
             actionLabel="Try Again" onAction={fetchProducts} />
         ) : products.length === 0 ? (
           <EmptyState
-            icon="ðŸ”"
+            icon="🔍"
             title="No products found"
             message={searchQuery
               ? `No results for "${searchQuery}". Try a different search.`

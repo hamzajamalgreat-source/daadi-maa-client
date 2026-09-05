@@ -11,6 +11,7 @@ import OrderStatusBadge from '../components/OrderStatusBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import useAuthStore from '../store/authStore';
 import toast from 'react-hot-toast';
+import { motion } from "motion/react";
 
 // â”€â”€â”€ Admin Layout Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function AdminShell({ children, title }) {
@@ -209,7 +210,7 @@ export default function AdminDashboard() {
       </div>
 
       {loading && !stats ? (
-        <LoadingSpinner label="Loading dashboardâ€¦" />
+        <LoadingSpinner label="Loading dashboard..." />
       ) : error ? (
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <AlertCircle size={32} className="text-red-400 mx-auto mb-2" />
@@ -248,12 +249,20 @@ export default function AdminDashboard() {
           )}
 
           {/* â”€â”€ Stat cards â”€â”€ */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard icon={ShoppingBag}  label="Total Orders"    value={stats.totalOrders}     colour="bg-primary"     border="border-primary"    sub={`${stats.todayOrders} today`} />
-            <StatCard icon={Clock}        label="Pending"         value={stats.pendingOrders}   colour="bg-amber-500"   border="border-amber-400"  sub="Need action" />
-            <StatCard icon={Package}      label="Processing"      value={stats.processingOrders} colour="bg-blue-500"   border="border-blue-400" />
-            <StatCard icon={CheckCircle}  label="Delivered"       value={stats.deliveredOrders} colour="bg-green-600"   border="border-green-500" />
-          </div>
+          <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-4" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.09 } } }}>
+            <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
+              <StatCard icon={ShoppingBag}  label="Total Orders"    value={stats.totalOrders}     colour="bg-primary"     border="border-primary"    sub={`${stats.todayOrders} today`} />
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
+              <StatCard icon={Clock}        label="Pending"         value={stats.pendingOrders}   colour="bg-amber-500"   border="border-amber-400"  sub="Need action" />
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
+              <StatCard icon={Package}      label="Processing"      value={stats.processingOrders} colour="bg-blue-500"   border="border-blue-400" />
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
+              <StatCard icon={CheckCircle}  label="Delivered"       value={stats.deliveredOrders} colour="bg-green-600"   border="border-green-500" />
+            </motion.div>
+          </motion.div>
 
           {/* â”€â”€ Revenue row â”€â”€ */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
