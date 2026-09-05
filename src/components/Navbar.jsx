@@ -1,13 +1,17 @@
-﻿import { useState, useEffect } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import { ShoppingCart, Menu, X } from "lucide-react";
+﻿import { useState, useEffect, useRef } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { ShoppingCart, Menu, X, Search } from "lucide-react";
 import useCartStore from "../store/cartStore";
 
 export default function Navbar() {
   const { items, openDrawer } = useCartStore();
-  const [scrolled, setScrolled]     = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
+  const [scrolled, setScrolled]       = useState(false);
+  const [mobileOpen, setMobileOpen]   = useState(false);
+  const [searchOpen, setSearchOpen]   = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const location  = useLocation();
+  const navigate  = useNavigate();
+  const searchRef = useRef(null);
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
 
   useEffect(() => {
@@ -18,9 +22,31 @@ export default function Navbar() {
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
+  // Auto-focus search input when opened
+  useEffect(() => {
+    if (searchOpen && searchRef.current) searchRef.current.focus();
+  }, [searchOpen]);
+
+  // Close search on Escape
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') setSearchOpen(false); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setSearchOpen(false);
+    }
+  };
+
   const navLinks = [
-    { to: "/",     label: "Home", exact: true  },
-    { to: "/shop", label: "Shop", exact: false },
+    { to: "/",     label: "Home",  exact: true  },
+    { to: "/shop", label: "Shop",  exact: false },
+    { to: "/track", label: "Track", exact: false },
   ];
 
   return (
@@ -67,14 +93,42 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1">
+            {/* Inline search — expands when open */}
+            {searchOpen ? (
+              <form onSubmit={handleSearchSubmit} className="flex items-center gap-1 animate-fade-in">
+                <input
+                  ref={searchRef}
+                  type="search"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search spices…"
+                  className="w-40 sm:w-52 px-3 py-1.5 rounded-lg border text-sm bg-cream focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ borderColor: '#EFE8DF', color: '#23120B' }}
+                  aria-label="Search products"
+                />
+                <button type="submit" aria-label="Submit search"
+                  className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-cream-dark transition-colors">
+                  <Search size={18} />
+                </button>
+                <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search"
+                  className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-cream-dark transition-colors">
+                  <X size={18} />
+                </button>
+              </form>
+            ) : (
+              <button onClick={() => setSearchOpen(true)} aria-label="Open search"
+                className="p-2.5 rounded-lg text-text-muted hover:text-primary hover:bg-cream-dark transition-colors hidden sm:flex">
+                <Search size={20} />
+              </button>
+            )}
             <button onClick={openDrawer}
               aria-label={`Shopping cart — ${totalItems} item${totalItems !== 1 ? "s" : ""}`}
               className="relative p-2.5 rounded-lg text-text-muted hover:text-primary hover:bg-cream-dark transition-colors">
               <ShoppingCart size={22} />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary text-white
+                <span key={totalItems} className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary text-white
                                  text-[10px] font-bold rounded-full flex items-center justify-center px-0.5
-                                 animate-fade-in">
+                                 animate-bounce-once">
                   {totalItems > 99 ? "99+" : totalItems}
                 </span>
               )}

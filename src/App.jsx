@@ -3,12 +3,14 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 // Layout components — always loaded (part of the shell)
-import Navbar         from "./components/Navbar";
-import Footer         from "./components/Footer";
-import CartDrawer     from "./components/CartDrawer";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PageSkeleton   from "./components/PageSkeleton";
-import OfflineBanner  from "./components/OfflineBanner";
+import Navbar          from "./components/Navbar";
+import Footer          from "./components/Footer";
+import CartDrawer      from "./components/CartDrawer";
+import ProtectedRoute  from "./components/ProtectedRoute";
+import PageSkeleton    from "./components/PageSkeleton";
+import OfflineBanner   from "./components/OfflineBanner";
+import WhatsAppButton  from "./components/WhatsAppButton";
+import BottomNav       from "./components/BottomNav";
 
 // FL3: Route-based code splitting via React.lazy().
 // Each route is a separate JS chunk — admin code is NOT downloaded on the homepage.
@@ -24,6 +26,7 @@ const AdminLogin        = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard    = lazy(() => import("./pages/AdminDashboard"));
 const AdminOrders       = lazy(() => import("./pages/AdminOrders"));
 const AdminProducts     = lazy(() => import("./pages/AdminProducts"));
+const OrderTracking     = lazy(() => import("./pages/OrderTracking"));
 
 // ─── Layout wrappers ──────────────────────────────────────────────────────────
 
@@ -32,7 +35,7 @@ function StorefrontLayout({ children }) {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <CartDrawer />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 pb-16 md:pb-0">{children}</div>
       <Footer />
     </div>
   );
@@ -76,6 +79,8 @@ export default function App() {
     <>
       {/* FL6: Offline detection banner — appears when connection is lost */}
       <OfflineBanner />
+      <WhatsAppButton />
+      <BottomNav />
       <ScrollToTop />
 
       {/*
@@ -104,6 +109,9 @@ export default function App() {
           } />
           <Route path="/order/:id" element={
             <StorefrontLayout><OrderConfirmation /></StorefrontLayout>
+          } />
+          <Route path="/track" element={
+            <StorefrontLayout><OrderTracking /></StorefrontLayout>
           } />
 
           {/* ── Admin routes ──────────────────────────────────────────────── */}

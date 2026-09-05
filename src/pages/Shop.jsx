@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, X, SlidersHorizontal, Grid2X2, List } from 'lucide-react';
+import { Search, X, RefreshCw } from 'lucide-react';
 import { productsApi } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import CategoryFilter from '../components/CategoryFilter';
@@ -14,6 +14,10 @@ export default function Shop() {
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState('');
   const [localSearch, setLocalSearch] = useState(searchParams.get('search') || '');
+  const [pulling, setPulling]     = useState(false);
+  const [pullY, setPullY]         = useState(0);
+  const touchStartY = useRef(null);
+  const mainRef     = useRef(null);
 
   const activeCategory = searchParams.get('category') || '';
   const searchQuery    = searchParams.get('search')   || '';
@@ -63,11 +67,45 @@ export default function Shop() {
     setSearchParams({});
   };
 
+  // Pull-to-refresh handlers
+  const handleTouchStart = (e) => {
+    const el = mainRef.current;
+    if (!el || el.scrollTop > 0) return;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const handleTouchMove = (e) => {
+    if (touchStartY.current === null) return;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    if (dy > 0 && dy < 120) setPullY(dy);
+  };
+  const handleTouchEnd = () => {
+    if (pullY > 80) {
+      setPulling(true);
+      fetchProducts();
+      setTimeout(() => setPulling(false), 1000);
+    }
+    setPullY(0);
+    touchStartY.current = null;
+  };
+
   const hasFilters = activeCategory || searchQuery;
   const activeLabel = categories.find(c => c.slug === activeCategory)?.name || 'All Products';
 
   return (
-    <main className="bg-cream min-h-screen">
+    <main className="bg-cream min-h-screen"
+      ref={mainRef}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Pull-to-refresh indicator */}
+      {(pullY > 20 || pulling) && (
+        <div className="flex items-center justify-center py-3 text-sm text-text-muted gap-2 transition-all"
+          style={{ height: pullY > 20 ? `${Math.min(pullY, 56)}px` : '0px', overflow: 'hidden' }}>
+          <RefreshCw size={16} className={pulling ? 'animate-spin' : ''} />
+          {pulling ? 'Refreshing…' : 'Release to refresh'}
+        </div>
+      )}
 
       {/* ── Page header — cream, consistent with body ──────────────────── */}
       <div className="border-b border-border">

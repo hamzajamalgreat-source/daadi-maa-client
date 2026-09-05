@@ -5,11 +5,12 @@ import {
   ArrowRight, LogOut, RefreshCw, Users, DollarSign,
   AlertCircle, Truck, XCircle, BarChart2,
 } from 'lucide-react';
-import { ordersApi } from '../api/client';
+import { ordersApi, productsApi } from '../api/client';
 import { formatCurrency } from '../utils/formatCurrency';
 import OrderStatusBadge from '../components/OrderStatusBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import useAuthStore from '../store/authStore';
+import toast from 'react-hot-toast';
 
 // â”€â”€â”€ Admin Layout Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function AdminShell({ children, title }) {
@@ -159,6 +160,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [outOfStock, setOutOfStock]   = useState([]);
 
   const fetchStats = useCallback(async () => {
     setError('');
@@ -166,6 +168,11 @@ export default function AdminDashboard() {
       const res = await ordersApi.getStats();
       setStats(res.data);
       setLastUpdated(new Date());
+      // Fetch out-of-stock products
+      try {
+        const prodRes = await productsApi.getAll();
+        setOutOfStock(prodRes.data.filter(p => !p.in_stock));
+      } catch { /* non-critical */ }
     } catch (err) {
       setError(err.message || 'Failed to load dashboard stats.');
     } finally {
@@ -211,6 +218,34 @@ export default function AdminDashboard() {
         </div>
       ) : stats ? (
         <div className="space-y-6">
+
+          {/* Out of stock alert */}
+          {outOfStock.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <h3 className="font-semibold text-red-700 mb-2 flex items-center gap-2">
+                <AlertCircle size={16} /> {outOfStock.length} product{outOfStock.length > 1 ? `s` : ``} out of stock
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {outOfStock.map(p => (
+                  <div key={p.id} className="flex items-center gap-2 bg-white border border-red-100 rounded-lg px-3 py-1.5">
+                    <span className="text-xs font-medium text-gray-700">{p.name}</span>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await productsApi.update(p.id, { in_stock: 1 });
+                          setOutOfStock(prev => prev.filter(x => x.id !== p.id));
+                          toast.success(`${p.name} marked as in stock`);
+                        } catch { toast.error(`Failed to update`); }
+                      }}
+                      className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full hover:bg-green-600 transition-colors"
+                    >
+                      Mark In Stock
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* â”€â”€ Stat cards â”€â”€ */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

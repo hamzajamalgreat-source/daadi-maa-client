@@ -8,33 +8,12 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      {/* Toast notifications — positioned top-right, brand styled */}
+      {/* Toast notifications — bottom-center on mobile, brand styled */}
       <Toaster
-        position="top-right"
-        gutter={8}
+        position="bottom-center"
         toastOptions={{
-          duration: 3500,
-          style: {
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize: '14px',
-            borderRadius: '8px',
-            background: '#fff',
-            color: '#2D1810',
-            boxShadow: '0 4px 12px rgba(45, 24, 16, 0.12)',
-            border: '1px solid #E8DDD3',
-          },
-          success: {
-            iconTheme: {
-              primary: '#8B1A1A',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#D32F2F',
-              secondary: '#fff',
-            },
-          },
+          duration: 3000,
+          style: { fontSize: '14px', fontWeight: '600' }
         }}
       />
       <App />

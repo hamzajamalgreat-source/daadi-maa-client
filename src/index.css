@@ -162,3 +162,10 @@
     background: linear-gradient(90deg, #8B1E17 0%, #D97706 40%, #8B1E17 80%, #D97706 100%);
   }
 }
+
+/* ─── Cart badge bounce animation ──────────────────────────────────────────── */
+@keyframes bounceOnce {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.4); }
+}
+.animate-bounce-once { animation: bounceOnce 0.4s ease-in-out; }

@@ -135,6 +135,7 @@ export default function Footer() {
                 { to: '/shop?category=recipe-mixes',  label: 'Recipe Mixes' },
                 { to: '/shop?category=spice-powders', label: 'Spice Powders' },
                 { to: '/shop?category=salts',         label: 'Himalayan Salts' },
+                { to: '/track',                       label: 'Track Order' },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link to={to}

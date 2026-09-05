@@ -6,6 +6,20 @@
  *   active      — currently selected slug (or '' for All)
  *   onChange    — (slug: string) => void
  */
+
+const CATEGORY_EMOJI = {
+  'recipe-mixes':    '🍛',
+  'spice-powders':   '🌶️',
+  'salts':           '🧂',
+  'whole-spices':    '🌿',
+  'chilli-products': '🔥',
+  'biryani-pulao':   '🍚',
+  'bbq-grill':       '🔥',
+  'blended-masalas': '✨',
+  'curry-bases':     '🥘',
+  'gift-packs':      '🎁',
+};
+
 export default function CategoryFilter({ categories = [], active = '', onChange }) {
   const allCategories = [{ id: 0, name: 'All Products', slug: '' }, ...categories];
 
@@ -17,6 +31,7 @@ export default function CategoryFilter({ categories = [], active = '', onChange 
     >
       {allCategories.map((cat) => {
         const isActive = cat.slug === active;
+        const emoji = CATEGORY_EMOJI[cat.slug];
         return (
           <button
             key={cat.id}
@@ -33,7 +48,7 @@ export default function CategoryFilter({ categories = [], active = '', onChange 
               }
             `}
           >
-            {cat.name}
+            {emoji ? `${emoji} ${cat.name}` : cat.name}
           </button>
         );
       })}

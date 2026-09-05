@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart, Eye, Star } from "lucide-react";
 import toast from "react-hot-toast";
 import useCartStore from "../store/cartStore";
 import { formatCurrency } from "../utils/formatCurrency";
@@ -31,25 +31,29 @@ export default function ProductCard({ product }) {
   return (
     <article className="group relative bg-white rounded-card shadow-card border border-border
                         flex flex-col overflow-hidden
-                        transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1.5">
+                        transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1.5"
+             style={{ borderColor: "#EFE8DF" }}>
 
-      {/* Image */}
-      <Link to={`/shop/${product.slug}`}
+      {/* ── Image area ─────────────────────────────────────────────────── */}
+      <Link
+        to={`/shop/${product.slug}`}
         className="relative block overflow-hidden bg-cream"
         style={{ aspectRatio: "4/5" }}
-        aria-label={`View ${product.name}`}>
-
+        aria-label={`View ${product.name}`}
+      >
+        {/* Skeleton loader */}
         {!imgLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-cream to-cream-dark animate-pulse" />
         )}
 
+        {/* Product image */}
         <img
           src={product.image_url || "/placeholder-spice.svg"}
           alt={product.name}
           onLoad={() => setImgLoaded(true)}
           onError={e => { e.target.src = "/placeholder-spice.svg"; setImgLoaded(true); }}
-          className={`absolute inset-0 w-full h-full object-contain p-5 transition-transform duration-500
-                      group-hover:scale-[1.06] ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 w-full h-full object-contain p-4 transition-transform duration-500
+                      group-hover:scale-[1.05] ${imgLoaded ? "opacity-100" : "opacity-0"}`}
           loading="lazy"
         />
 
@@ -63,60 +67,89 @@ export default function ProductCard({ product }) {
 
         {/* Out of stock */}
         {!product.in_stock && (
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
             <span className="bg-text-dark text-white text-xs font-bold px-3 py-1.5 rounded-full">
               Out of Stock
             </span>
           </div>
         )}
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-brand-dark/0 group-hover:bg-brand-dark/5
-                        transition-all duration-300 z-10" />
+        {/* Hover overlay — dark blur + "View Product" + "Add to Cart" */}
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2.5
+                        opacity-0 group-hover:opacity-100 transition-all duration-300
+                        backdrop-blur-[2px]"
+             style={{ background: "rgba(35,18,11,0.48)" }}>
+          <span className="flex items-center gap-2 bg-white text-sm font-bold px-5 py-2.5 rounded-full shadow-xl
+                           translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+                style={{ color: "#8B1E17" }}>
+            <Eye size={15} />
+            View Product
+          </span>
+          {product.in_stock && (
+            <button
+              onClick={handleAddToCart}
+              disabled={adding}
+              className="flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg
+                         transition-all duration-200 active:scale-95
+                         translate-y-4 group-hover:translate-y-0"
+              style={{ background: adding ? "#3E5244" : "#8B1E17", transitionDelay: "50ms" }}
+              aria-label={`Add ${product.name} to cart`}
+            >
+              <ShoppingCart size={13} />
+              {adding ? "✓ Added!" : "Add to Cart"}
+            </button>
+          )}
+        </div>
       </Link>
 
-      {/* Info */}
-      <div className="flex flex-col flex-1 px-4 pb-4 pt-3">
+      {/* ── Info section — changes on group hover ──────────────────────── */}
+      <div className="flex flex-col flex-1 px-4 pb-4 pt-3 transition-colors duration-300"
+           style={{ background: "inherit" }}>
+
         {product.category_name && (
-          <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">
+          <span className="text-[10px] font-semibold uppercase tracking-wider mb-1
+                           transition-colors duration-300 group-hover:text-accent"
+                style={{ color: "#7C6B5E" }}>
             {product.category_name}
           </span>
         )}
 
-        <Link to={`/shop/${product.slug}`}
-          className="font-serif font-semibold text-text-dark text-sm leading-snug mb-2
-                     hover:text-primary transition-colors line-clamp-2">
+        {/* Name — goes bold + heritage red on hover */}
+        <Link
+          to={`/shop/${product.slug}`}
+          className="font-serif font-semibold text-sm leading-snug mb-2 transition-all duration-300
+                     group-hover:font-bold group-hover:text-primary line-clamp-2"
+          style={{ color: "#23120B" }}
+        >
           {product.name}
         </Link>
 
-        {/* Stars */}
+        {/* Stars — accent on hover */}
         <div className="flex items-center gap-0.5 mb-3">
           {Array(5).fill(0).map((_, i) => (
-            <Star key={i} size={11} className="text-accent fill-accent" />
+            <Star key={i} size={11}
+              className="transition-colors duration-300 group-hover:text-accent group-hover:fill-accent text-accent fill-accent" />
           ))}
+          <span className="text-[10px] ml-1 transition-colors duration-300 group-hover:text-primary"
+                style={{ color: "#7C6B5E" }}>5.0</span>
         </div>
 
-        {/* Price + CTA */}
-        <div className="mt-auto flex items-center justify-between gap-2">
-          <span className="text-base font-bold text-primary">
+        {/* Price row — bigger on hover */}
+        <div className="mt-auto flex items-center justify-between">
+          <span className="font-bold transition-all duration-300 group-hover:text-lg text-base"
+                style={{ color: "#8B1E17" }}>
             {formatCurrency(product.price)}
           </span>
-
-          <button onClick={handleAddToCart}
-            disabled={!product.in_stock || adding}
-            aria-label={`Add ${product.name} to cart`}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold
-                       transition-all duration-200 active:scale-95
-                       ${product.in_stock
-                         ? adding
-                           ? "bg-olive text-white"
-                           : "bg-primary text-white hover:bg-primary-dark"
-                         : "bg-cream-dark text-text-muted cursor-not-allowed"}`}>
-            <ShoppingCart size={13} />
-            <span className="hidden sm:inline">{adding ? "✓ Added" : "Add"}</span>
-          </button>
+          <span className="text-[10px] font-medium transition-colors duration-300 group-hover:text-primary"
+                style={{ color: "#7C6B5E" }}>
+            {product.in_stock ? '🟢 In Stock' : 'Out of Stock'}
+          </span>
         </div>
       </div>
+
+      {/* Bottom border highlight on hover */}
+      <div className="h-0.5 w-0 group-hover:w-full transition-all duration-500"
+           style={{ background: "#8B1E17" }} />
     </article>
   );
 }

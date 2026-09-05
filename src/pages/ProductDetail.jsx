@@ -1,9 +1,9 @@
-﻿import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ShoppingCart, Plus, Minus, Tag, Shield, Leaf, Star,
   Truck, Check, Package, ChevronLeft, ChevronRight,
-  X, ZoomIn
+  X, ZoomIn, Share2
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { productsApi } from "../api/client";
@@ -141,6 +141,20 @@ const BADGE_STYLES = {
   "Regional Special": { bg: "#3E5244", text: "#fff" },
 };
 
+const PAIRINGS = {
+  'quorma-mix':               ['black-pepper-powder', 'garam-masala-powder'],
+  'achar-gosht-masala':       ['red-chilli-powder', 'turmeric-powder'],
+  'kabuli-pulao-masala':      ['garam-masala-powder', 'coriander-powder'],
+  'bombay-biryani-masala':    ['red-chilli-powder', 'garam-masala-powder'],
+  'tikka-boti-powder':        ['red-chilli-flakes', 'black-pepper-powder'],
+  'fish-masala-powder':       ['turmeric-powder', 'coriander-powder'],
+  'peshawari-chatpatta-masala': ['red-chilli-flakes', 'black-pepper-powder'],
+  'curry-powder':             ['turmeric-powder', 'coriander-powder', 'red-chilli-powder'],
+  'garam-masala-powder':      ['black-pepper-powder', 'coriander-powder'],
+};
+
+const RECENTLY_VIEWED_KEY = 'daadi-recently-viewed';
+
 /* ─── Lightbox: full-screen, blurred backdrop, image never cropped ─────────── */
 function Lightbox({ images, activeIndex, onClose, onChange }) {
   useEffect(() => {
@@ -230,12 +244,27 @@ export default function ProductDetail() {
   const [adding, setAdding]       = useState(false);
   const [activeImg, setActiveImg] = useState(0);
   const [lightbox, setLightbox]   = useState(false);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const touchStartX = useRef(null);
 
   useEffect(() => {
     setLoading(true); setError(""); setQuantity(1); setActiveImg(0); setLightbox(false);
     productsApi.getBySlug(slug)
       .then(async res => {
         setProduct(res.data);
+        // Save to recently viewed in localStorage
+        try {
+          const raw = localStorage.getItem(RECENTLY_VIEWED_KEY);
+          const prev = raw ? JSON.parse(raw) : [];
+          const entry = {
+            id: res.data.id, slug: res.data.slug, name: res.data.name,
+            price: res.data.price, image_url: res.data.image_url,
+          };
+          const filtered = prev.filter(p => p.slug !== slug);
+          const updated  = [entry, ...filtered].slice(0, 5);
+          localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(updated));
+          setRecentlyViewed(updated.filter(p => p.slug !== slug));
+        } catch { /* ignore */ }
         if (res.data.category_slug) {
           try {
             const rel = await productsApi.getAll({ category: res.data.category_slug });
@@ -255,6 +284,18 @@ export default function ProductDetail() {
     openDrawer();
     setTimeout(() => setAdding(false), 800);
   }, [product, quantity, adding, addItem, openDrawer]);
+
+  // Touch swipe handlers for image carousel
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd   = (e) => {
+    if (touchStartX.current === null || !product) return;
+    const pd2 = PRODUCT_DATA[slug] || {};
+    const imgCount = 1 + (pd2.extraImages || []).length;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (diff > 50)       setActiveImg(i => (i + 1) % imgCount);
+    else if (diff < -50) setActiveImg(i => (i - 1 + imgCount) % imgCount);
+    touchStartX.current = null;
+  };
 
   if (loading) return (
     <div className="min-h-[60vh] flex items-center justify-center" style={{ background: "#FBF9F5" }}>
@@ -285,7 +326,7 @@ export default function ProductDetail() {
           onClose={() => setLightbox(false)} onChange={setActiveImg} />
       )}
 
-      <main style={{ background: "#FBF9F5" }} className="min-h-screen">
+      <main style={{ background: "#FBF9F5" }} className="min-h-screen pb-20 md:pb-0">
         <div className="container-page py-6 sm:py-10">
 
           {/* Breadcrumb */}
@@ -310,7 +351,10 @@ export default function ProductDetail() {
               {/* Main image — click = lightbox */}
               <div className="relative rounded-3xl overflow-hidden bg-white border shadow-card-hover cursor-zoom-in group/img"
                 style={{ borderColor: "#EFE8DF", aspectRatio: "1/1" }}
-                onClick={() => setLightbox(true)} role="button" aria-label="Enlarge image">
+                onClick={() => setLightbox(true)}
+                onTouchStart={hasMultiple ? handleTouchStart : undefined}
+                onTouchEnd={hasMultiple ? handleTouchEnd : undefined}
+                role="button" aria-label="Enlarge image">
 
                 <img key={activeImg}
                   src={allImages[activeImg].url}
@@ -467,6 +511,30 @@ export default function ProductDetail() {
                 </div>
               )}
 
+              {/* Goes well with — Frequently Bought Together */}
+              {PAIRINGS[slug] && related.length > 0 && (() => {
+                const pairs = related.filter(p => PAIRINGS[slug].includes(p.slug));
+                if (!pairs.length) return null;
+                return (
+                  <div className="rounded-xl px-4 py-3 mb-5 border" style={{ borderColor: "#EFE8DF" }}>
+                    <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#23120B" }}>
+                      ✨ Goes well with
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {pairs.map(p => (
+                        <Link key={p.id} to={`/shop/${p.slug}`}
+                          className="flex items-center gap-2 bg-white border rounded-lg px-3 py-1.5 hover:border-primary transition-colors"
+                          style={{ borderColor: "#EFE8DF" }}>
+                          <img src={p.image_url || '/placeholder-spice.svg'} alt={p.name}
+                            className="w-6 h-6 object-contain rounded" />
+                          <span className="text-xs font-medium" style={{ color: "#23120B" }}>{p.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div className="flex items-center gap-2 mb-5">
                 <span className={"w-2.5 h-2.5 rounded-full " + (product.in_stock ? "bg-green-500" : "bg-red-500")} />
                 <span className={"text-sm font-semibold " + (product.in_stock ? "text-green-700" : "text-red-600")}>
@@ -506,8 +574,26 @@ export default function ProductDetail() {
                       Buy Now
                     </button>
                   </div>
+                  {/* Share button */}
                 </>
               )}
+
+              {/* Share button — always visible */}
+              <button
+                onClick={async () => {
+                  const url = window.location.href;
+                  if (navigator.share) {
+                    await navigator.share({ title: product.name, text: `Check out ${product.name} by Daadi Maa Spices`, url });
+                  } else {
+                    await navigator.clipboard.writeText(url);
+                    toast.success('Link copied to clipboard!');
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2 text-sm font-medium py-2.5 rounded-xl border transition-all mb-6"
+                style={{ borderColor: '#EFE8DF', color: '#7C6B5E' }}
+              >
+                <Share2 size={15} /> Share this product
+              </button>
 
               <div className="bg-white rounded-2xl border p-5 space-y-3" style={{ borderColor: "#EFE8DF" }}>
                 {[
@@ -548,8 +634,56 @@ export default function ProductDetail() {
               </div>
             </section>
           )}
+
+          {/* Recently Viewed */}
+          {recentlyViewed.length > 0 && (
+            <section className="mt-12" aria-label="Recently viewed">
+              <h2 className="font-serif text-xl font-bold mb-4" style={{ color: "#23120B" }}>Recently Viewed</h2>
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
+                {recentlyViewed.map(p => (
+                  <Link key={p.id} to={`/shop/${p.slug}`}
+                    className="flex-shrink-0 w-36 bg-white rounded-xl border overflow-hidden hover:shadow-md transition-shadow"
+                    style={{ borderColor: "#EFE8DF" }}>
+                    <div className="aspect-square bg-cream p-2">
+                      <img src={p.image_url || '/placeholder-spice.svg'} alt={p.name}
+                        className="w-full h-full object-contain"
+                        onError={e => { e.target.src = '/placeholder-spice.svg'; }} />
+                    </div>
+                    <div className="px-2 py-2">
+                      <p className="text-xs font-semibold leading-snug line-clamp-2 mb-1" style={{ color: "#23120B" }}>{p.name}</p>
+                      <p className="text-xs font-bold" style={{ color: "#8B1E17" }}>{formatCurrency(p.price)}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </main>
+
+      {/* Sticky mobile Add to Cart bar */}
+      {product?.in_stock && (
+        <div className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t bg-white px-4 py-3 flex items-center gap-3 shadow-lg"
+          style={{ borderColor: '#EFE8DF' }}>
+          <div className="flex-1">
+            <p className="font-serif font-bold text-base" style={{ color: '#8B1E17' }}>
+              {formatCurrency(product.price * quantity)}
+            </p>
+            <p className="text-xs" style={{ color: '#7C6B5E' }}>
+              {product.name}
+            </p>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={adding}
+            className="flex items-center gap-2 text-white font-bold px-5 py-3 rounded-xl text-sm transition-all active:scale-95"
+            style={{ background: adding ? '#3E5244' : '#8B1E17' }}
+          >
+            <ShoppingCart size={16} />
+            {adding ? 'Added!' : 'Add to Cart'}
+          </button>
+        </div>
+      )}
     </>
   );
 }

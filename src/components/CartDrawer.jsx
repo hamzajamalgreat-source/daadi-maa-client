@@ -1,8 +1,9 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import { formatCurrency } from '../utils/formatCurrency';
+import { productsApi } from '../api/client';
 import EmptyState from './EmptyState';
 
 /**
@@ -13,6 +14,7 @@ export default function CartDrawer() {
   const { items, isDrawerOpen, closeDrawer, updateQuantity, removeItem, totalItems, totalPrice } =
     useCartStore();
   const navigate = useNavigate();
+  const [bestsellers, setBestsellers] = useState([]);
 
   // Close on Escape key
   const handleKeyDown = useCallback(
@@ -36,6 +38,18 @@ export default function CartDrawer() {
     }
     return () => { document.body.style.overflow = ''; };
   }, [isDrawerOpen]);
+
+  // Fetch bestsellers when drawer opens with empty cart
+  useEffect(() => {
+    if (isDrawerOpen && items.length === 0) {
+      productsApi.getAll()
+        .then(r => {
+          const badged = r.data.filter(p => p.badge && p.in_stock).slice(0, 3);
+          setBestsellers(badged);
+        })
+        .catch(() => {});
+    }
+  }, [isDrawerOpen, items.length]);
 
   const handleCheckout = () => {
     closeDrawer();
@@ -88,13 +102,49 @@ export default function CartDrawer() {
         {/* Items list */}
         <div className="flex-1 overflow-y-auto scrollbar-thin px-5 py-4">
           {items.length === 0 ? (
-            <EmptyState
-              icon="🛒"
-              title="Your cart is empty"
-              message="Browse our spices and add items to your cart."
-              actionLabel="Shop Now"
-              actionTo="/shop"
-            />
+            <div>
+              <EmptyState
+                icon="🛒"
+                title="Your cart is empty"
+                message="Browse our spices and add items to your cart."
+                actionLabel="Shop Now"
+                actionTo="/shop"
+              />
+              {bestsellers.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">
+                    Popular picks
+                  </p>
+                  <ul className="space-y-2">
+                    {bestsellers.map(p => (
+                      <li key={p.id} className="flex items-center gap-3 p-2 rounded-xl border border-border hover:bg-cream transition-colors">
+                        <Link to={`/shop/${p.slug}`} onClick={closeDrawer} className="flex-shrink-0">
+                          <img src={p.image_url || '/placeholder-spice.svg'} alt={p.name}
+                            className="w-12 h-12 rounded-lg object-contain bg-cream"
+                            onError={e => { e.target.src = '/placeholder-spice.svg'; }} />
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                          <Link to={`/shop/${p.slug}`} onClick={closeDrawer}
+                            className="text-xs font-semibold text-text-dark hover:text-primary transition-colors line-clamp-1">
+                            {p.name}
+                          </Link>
+                          <p className="text-xs text-primary font-bold">{formatCurrency(p.price)}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            useCartStore.getState().addItem(p, 1);
+                            useCartStore.getState().openDrawer();
+                          }}
+                          className="flex-shrink-0 text-xs bg-primary text-white font-bold px-3 py-1.5 rounded-lg hover:bg-primary-dark transition-colors"
+                        >
+                          Add
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           ) : (
             <ul className="space-y-4">
               {items.map((item) => (

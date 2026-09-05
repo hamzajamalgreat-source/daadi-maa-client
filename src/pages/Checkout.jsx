@@ -140,6 +140,16 @@ function OrderSuccessOverlay({ order, onGoHome }) {
               Back to Home
               <ArrowRight size={17} aria-hidden="true" />
             </button>
+            <a
+              href={`https://wa.me/923149007440?text=${encodeURIComponent(
+                `My order #${order.id} placed on Daadi Maa Spices!\nItems: ${(order.items||[]).map(i=>`${i.product_name} x${i.quantity}`).join(', ')}\nTotal: Rs.${order.total_amount}\nContact: ${order.customer_phone}`
+              )}`}
+              target="_blank" rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+              style={{ background: '#25D366' }}
+            >
+              📱 Confirm via WhatsApp
+            </a>
             <p className="text-center text-xs text-text-muted">
               Redirecting to home in{' '}
               <span className="font-bold text-primary">{countdown}</span>s…
