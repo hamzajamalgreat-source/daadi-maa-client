@@ -1,21 +1,39 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+﻿import { useState, useEffect } from 'react';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { CheckCircle, Phone, MapPin, Package, ArrowRight } from 'lucide-react';
 import { ordersApi } from '../api/client';
 import { formatCurrency } from '../utils/formatCurrency';
 import OrderStatusBadge from '../components/OrderStatusBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
+import useAuthStore from '../store/authStore';
 
 export default function OrderConfirmation() {
-  const { id } = useParams();
-  const [order, setOrder]   = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState('');
+  const { id }       = useParams();
+  const location     = useLocation();
+  const { isAuthenticated } = useAuthStore();
+
+  // Checkout passes the full order via router state to avoid an API call.
+  // FIX: /api/orders/:id is now admin-only. Customers get their order from
+  // location.state (passed by Checkout after placing an order). If state is
+  // missing and the user is an admin, fall back to the API.
+  const [order, setOrder]     = useState(location.state?.order || null);
+  const [loading, setLoading] = useState(!order);
+  const [error, setError]     = useState('');
 
   useEffect(() => {
+    // Already have order from router state — nothing to fetch
+    if (order) { setLoading(false); return; }
+
     if (!id || isNaN(parseInt(id))) {
       setError('Invalid order ID.');
+      setLoading(false);
+      return;
+    }
+
+    // Only admins can fetch orders from the API directly
+    if (!isAuthenticated) {
+      setError('Order details are not available. Please contact us if you need help.');
       setLoading(false);
       return;
     }
@@ -25,7 +43,7 @@ export default function OrderConfirmation() {
       .then((res) => setOrder(res.data))
       .catch((err) => setError(err.message || 'Order not found.'))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, order, isAuthenticated]);
 
   if (loading) return <LoadingSpinner label="Loading your order…" />;
 
@@ -49,20 +67,14 @@ export default function OrderConfirmation() {
 
   return (
     <main className="bg-cream min-h-screen container-page py-10 sm:py-16 max-w-2xl mx-auto animate-fade-in">
-      {/* Success header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-5">
           <CheckCircle size={44} className="text-primary" aria-hidden="true" />
         </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-text-dark mb-2">
-          Order Placed!
-        </h1>
-        <p className="text-text-muted text-base">
-          Thank you for your order. We'll get it to you soon.
-        </p>
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-text-dark mb-2">Order Placed!</h1>
+        <p className="text-text-muted text-base">Thank you for your order. We will get it to you soon.</p>
       </div>
 
-      {/* Order info card */}
       <div className="card p-6 mb-6">
         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
           <div>
@@ -107,7 +119,6 @@ export default function OrderConfirmation() {
           </div>
         </div>
 
-        {/* Order items */}
         {order.items && order.items.length > 0 && (
           <div className="border-t border-border pt-5">
             <h2 className="font-semibold text-text-dark mb-3 flex items-center gap-2 text-sm">
@@ -116,21 +127,14 @@ export default function OrderConfirmation() {
             </h2>
             <ul className="space-y-2">
               {order.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex justify-between items-center text-sm"
-                >
+                <li key={item.id} className="flex justify-between items-center text-sm">
                   <span className="text-text-muted">
-                    {item.product_name}{' '}
-                    <span className="font-medium text-text-dark">× {item.quantity}</span>
+                    {item.product_name} <span className="font-medium text-text-dark">× {item.quantity}</span>
                   </span>
-                  <span className="font-semibold text-text-dark">
-                    {formatCurrency(item.unit_price * item.quantity)}
-                  </span>
+                  <span className="font-semibold text-text-dark">{formatCurrency(item.unit_price * item.quantity)}</span>
                 </li>
               ))}
             </ul>
-
             <div className="flex justify-between font-bold text-base mt-4 pt-4 border-t border-border">
               <span className="font-serif">Total</span>
               <span className="text-primary text-lg">{formatCurrency(subtotal)}</span>
@@ -139,39 +143,21 @@ export default function OrderConfirmation() {
         )}
       </div>
 
-      {/* What's next */}
       <div className="card p-5 bg-cream border-l-4 border-accent mb-8 text-sm">
         <h2 className="font-semibold text-text-dark mb-2">What happens next?</h2>
         <ol className="space-y-1.5 text-text-muted list-none">
-          <li className="flex items-start gap-2">
-            <span className="text-primary font-bold flex-shrink-0">1.</span>
-            Our team will review your order and call you to confirm.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-primary font-bold flex-shrink-0">2.</span>
-            Your spices will be packed and dispatched.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-primary font-bold flex-shrink-0">3.</span>
-            Pay the delivery person when your order arrives. That's it!
-          </li>
+          <li className="flex items-start gap-2"><span className="text-primary font-bold flex-shrink-0">1.</span>Our team will review your order and call you to confirm.</li>
+          <li className="flex items-start gap-2"><span className="text-primary font-bold flex-shrink-0">2.</span>Your spices will be packed and dispatched.</li>
+          <li className="flex items-start gap-2"><span className="text-primary font-bold flex-shrink-0">3.</span>Pay the delivery person when your order arrives. That is it!</li>
         </ol>
-        <p className="mt-3 text-text-muted">
-          Questions? Call us at{' '}
-          <a href="tel:03149007440" className="text-primary font-medium hover:underline">
-            0314-9007440
-          </a>
-        </p>
+        <p className="mt-3 text-text-muted">Questions? Call us at <a href="tel:03149007440" className="text-primary font-medium hover:underline">0314-9007440</a></p>
       </div>
 
-      {/* CTA */}
       <div className="text-center">
         <Link to="/shop" className="btn-primary text-base px-8 py-3">
-          Continue Shopping
-          <ArrowRight size={18} aria-hidden="true" />
+          Continue Shopping <ArrowRight size={18} aria-hidden="true" />
         </Link>
       </div>
     </main>
   );
 }
-
